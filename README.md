@@ -31,11 +31,27 @@ Corpus-scale temporal belief consistency, real-time contradiction auditing, and 
    - [Stage 6: Temporal Belief Graph Assembly and Pruning](#stage-6-temporal-belief-graph-assembly-and-pruning)
    - [Stage 7: Quantitative Consistency Auditing and Reporting](#stage-7-quantitative-consistency-auditing-and-reporting)
    - [Stage 8: Context-Aware Memory Reconciliation](#stage-8-context-aware-memory-reconciliation)
-4. [Client Applications and User Interfaces](#client-applications-and-user-interfaces)
+4. [Neural Model Architecture and Optimization Engine](#neural-model-architecture-and-optimization-engine)
+   - [Teacher Cross-Encoder (DeBERTa-v3)](#teacher-cross-encoder-deberta-v3)
+   - [Student Architecture (ALETHEX-Mini, 22.7M Parameters)](#student-architecture-alethex-mini-227m-parameters)
+   - [Knowledge Distillation Formulation](#knowledge-distillation-formulation)
+   - [Dynamic INT8 Quantization Architecture](#dynamic-int8-quantization-architecture)
+   - [Dual-Layer Neural Architecture Diagram](#dual-layer-neural-architecture-diagram)
+5. [End-to-End LLM Workflow Walkthrough: Production Case Study](#end-to-end-llm-workflow-walkthrough-production-case-study)
+   - [Enterprise Scenario: Multi-Turn Infrastructure Evolution](#enterprise-scenario-multi-turn-infrastructure-evolution)
+   - [Step 1: Raw Turn Ingestion & Atomic Claim Extraction](#step-1-raw-turn-ingestion--atomic-claim-extraction)
+   - [Step 2: Canonical Entity Linking via SBERT and DBSCAN](#step-2-canonical-entity-linking-via-sbert-and-dbscan)
+   - [Step 3: Temporal Interval Normalization and Allen Calculus](#step-3-temporal-interval-normalization-and-allen-calculus)
+   - [Step 4: Staged NLI Verification and Logit Distribution](#step-4-staged-nli-verification-and-logit-distribution)
+   - [Step 5: Dynamic Belief Graph Mutation and Supersession](#step-5-dynamic-belief-graph-mutation-and-supersession)
+   - [Step 6: Memory Reconciliation and Context Injection](#step-6-memory-reconciliation-and-context-injection)
+   - [Comparative Output Analysis: Standard LLM vs ALETHEX-Guarded LLM](#comparative-output-analysis-standard-llm-vs-alethex-guarded-llm)
+   - [Real-Time User Interface Visualization](#real-time-user-interface-visualization)
+6. [Client Applications and User Interfaces](#client-applications-and-user-interfaces)
    - [Universal Chrome Extension (Manifest V3)](#universal-chrome-extension-manifest-v3)
    - [Native Desktop Companion](#native-desktop-companion)
    - [Production Landing Page and Documentation Hub](#production-landing-page-and-documentation-hub)
-5. [Enterprise Integrations and Middleware Gateways](#enterprise-integrations-and-middleware-gateways)
+7. [Enterprise Integrations and Middleware Gateways](#enterprise-integrations-and-middleware-gateways)
    - [Model Context Protocol (MCP) Server](#model-context-protocol-mcp-server)
    - [Universal OpenAI-Compatible Reverse Proxy](#universal-openai-compatible-reverse-proxy)
    - [Open WebUI Pipeline Filter](#open-webui-pipeline-filter)
@@ -44,22 +60,22 @@ Corpus-scale temporal belief consistency, real-time contradiction auditing, and 
    - [LlamaIndex Consistency Postprocessor](#llamaindex-consistency-postprocessor)
    - [Automated Environment Detector and Attacher](#automated-environment-detector-and-attacher)
    - [FastAPI REST Service and Visualization Dashboard](#fastapi-rest-service-and-visualization-dashboard)
-6. [Model Distillation and Optimization Benchmarks](#model-distillation-and-optimization-benchmarks)
+8. [Model Distillation and Optimization Benchmarks](#model-distillation-and-optimization-benchmarks)
    - [Empirical Relation Classification Benchmarks](#empirical-relation-classification-benchmarks)
    - [Latency, Throughput, and Compression Profiles](#latency-throughput-and-compression-profiles)
-7. [Installation and Deployment](#installation-and-deployment)
+9. [Installation and Deployment](#installation-and-deployment)
    - [Prerequisites](#prerequisites)
    - [Python Environment Setup](#python-environment-setup)
    - [Chrome Extension Deployment](#chrome-extension-deployment)
    - [Automated Service Orchestration](#automated-service-orchestration)
-8. [Python API and CLI Reference](#python-api-and-cli-reference)
-   - [Python API Usage Examples](#python-api-usage-examples)
-   - [Online Streaming Belief Tracker](#online-streaming-belief-tracker)
-   - [Command Line Interface (CLI)](#command-line-interface-cli)
-9. [Repository Structure](#repository-structure)
-10. [Verification and Test Suite](#verification-and-test-suite)
-11. [Citation](#citation)
-12. [License](#license)
+10. [Python API and CLI Reference](#python-api-and-cli-reference)
+    - [Python API Usage Examples](#python-api-usage-examples)
+    - [Online Streaming Belief Tracker](#online-streaming-belief-tracker)
+    - [Command Line Interface (CLI)](#command-line-interface-cli)
+11. [Repository Structure](#repository-structure)
+12. [Verification and Test Suite](#verification-and-test-suite)
+13. [Citation](#citation)
+14. [License](#license)
 
 ---
 
@@ -301,6 +317,312 @@ The scoring module computes:
 During memory retrieval for downstream generation, the reconciliation layer filters raw memory buffers:
 - **Drop Mode:** Strips out all inactive, superseded, and conflicting claims, passing only mathematically consistent facts to the LLM.
 - **Annotate Mode:** Retains statements but injects explicit warnings directly into context headers, instructing the LLM to prioritize the latest assertion.
+
+---
+
+## Neural Model Architecture and Optimization Engine
+
+The inference engine of ALETHEX is designed for ultra-low latency execution on resource-constrained consumer hardware while maintaining the reasoning precision of frontier cross-encoders.
+
+### Teacher Cross-Encoder (DeBERTa-v3)
+
+The primary teacher model is based on **DeBERTa-v3** (*Decoding-enhanced BERT with Disentangled Attention*):
+- **Disentangled Attention:** Each input token is represented by two separate vectors: one for content and one for relative position. The self-attention matrix calculates attention weights across four decoupled components: content-to-content, content-to-position, position-to-content, and position-to-position.
+- **Joint Premise-Hypothesis Encoding:** Unlike dual-encoder bi-encoders that process claims independently, the cross-encoder ingests the concatenated sequence:
+  $$\mathbf{x} = \text{[CLS]} \circ c_i \circ \text{[SEP]} \circ c_j \circ \text{[SEP]}$$
+  Allowing all tokens of claim $c_i$ to attend directly to all tokens of claim $c_j$ across all 24 Transformer layers.
+
+### Student Architecture (ALETHEX-Mini, 22.7M Parameters)
+
+To serve high-concurrency client streams, ALETHEX distills knowledge from the 435M-parameter DeBERTa-v3 teacher into a highly compacted student architecture:
+- **Base Architecture:** MiniLM-6L-384H (6 Transformer encoder layers, hidden dimension $d_h = 384$, 12 self-attention heads, intermediate feed-forward size $d_{ff} = 1536$).
+- **Parameter Footprint:** 22,713,219 parameters (representing a $19.15\times$ reduction in parameter volume).
+- **Classification Head:** Linear projection layer $\mathbf{W}_{\text{head}} \in \mathbb{R}^{3 \times 384}$ mapping the pooled $\text{[CLS]}$ embedding directly into the ternary relation logits $\mathbf{z}_s \in \{\text{Contradiction}, \text{Entailment}, \text{Neutral}\}$.
+
+### Knowledge Distillation Formulation
+
+Training minimizes a combined loss function that balances soft dark-knowledge transfer from the teacher logits $\mathbf{z}_t$ with ground-truth supervised classification loss $y \in \{0, 1, 2\}$:
+
+$$\mathcal{L}_{\text{distill}} = \alpha \cdot T^2 \cdot \mathcal{L}_{\text{KL}}\left(\sigma\left(\frac{\mathbf{z}_s}{T}\right), \sigma\left(\frac{\mathbf{z}_t}{T}\right)\right) + (1 - \alpha) \cdot \mathcal{L}_{\text{CE}}(\mathbf{z}_s, y)$$
+
+Where:
+- $\sigma(\cdot)$ is the softmax function.
+- $T = 2.0$ is the distillation temperature parameter, smoothing probability distributions over subtle relation boundaries.
+- $\alpha = 0.5$ balances matching teacher distribution softness against ground-truth categorical cross-entropy.
+- $\mathcal{L}_{\text{KL}}(P, Q) = \sum_k P(k) \log\left(\frac{P(k)}{Q(k)}\right)$ is the Kullback-Leibler divergence.
+
+Optimization is governed by AdamW ($\eta = 3 \times 10^{-5}$, weight decay $0.01$) with a cosine learning rate scheduler and $10\%$ linear warmup steps over 3 epochs.
+
+### Dynamic INT8 Quantization Architecture
+
+For real-time CPU deployment, ALETHEX applies dynamic 8-bit integer quantization (`onnxruntime.quantization.quantize_dynamic`):
+- **Weights:** Quantized offline from 32-bit floating-point ($\text{FP32}$) to signed 8-bit integers ($\text{INT8}$) via symmetric per-channel quantization:
+  $$\mathbf{W}_{\text{int8}} = \text{clip}\left(\left\lfloor \frac{\mathbf{W}_{\text{fp32}}}{S_w} \right\rceil, -128, 127\right)$$
+- **Activations:** Dynamically quantized at runtime using asymmetric per-tensor scaling factors $S_a$ and zero-points $Z_a$:
+  $$A_{\text{int8}} = \text{clip}\left(\left\lfloor \frac{A_{\text{fp32}}}{S_a} \right\rceil + Z_a, 0, 255\right)$$
+- **Execution:** Heavy matrix multiplications are dispatched directly to hardware-accelerated integer instruction sets (`AVX-512 VNNI`, `AVX2`, `ARM Neon`), bypassing floating-point arithmetic bottlenecks entirely.
+
+### Dual-Layer Neural Architecture Diagram
+
+```text
+               +-------------------------------------------------------------+
+               |  Concatenated Claim Pair: [CLS] c1 [SEP] c2 [SEP]           |
+               +-------------------------------------------------------------+
+                                      |
+                     +----------------+----------------+
+                     |                                 |
+                     v                                 v
+    +----------------------------------+   +----------------------------------+
+    | Teacher Model: DeBERTa-v3-Large  |   | Student Model: ALETHEX-Mini      |
+    | - 24 Layers, 1024 Dim, 16 Heads  |   | - 6 Layers, 384 Dim, 12 Heads    |
+    | - 435M Parameters (FP32)         |   | - 22.7M Parameters (INT8 ONNX)   |
+    | - Disentangled Attention         |   | - Dynamic Quantized MatMul       |
+    +----------------------------------+   +----------------------------------+
+                     |                                 |
+                     | Soft Logits (zt)                | Student Logits (zs)
+                     v                                 v
+        +---------------------------------------------------------------+
+        | Loss Function:                                                |
+        | L = alpha * T^2 * KL(zs/T || zt/T) + (1 - alpha) * CE(zs, y)  |
+        +---------------------------------------------------------------+
+                                      |
+                                      v
+        +---------------------------------------------------------------+
+        | Output Distribution:                                          |
+        | [ Contradiction: 0.982 | Entailment: 0.011 | Neutral: 0.007 ] |
+        +---------------------------------------------------------------+
+```
+
+---
+
+## End-to-End LLM Workflow Walkthrough: Production Case Study
+
+To illustrate how ALETHEX operates in live environments, the following walkthrough demonstrates the complete resolution lifecycle across a multi-turn software architecture dialogue.
+
+### Enterprise Scenario: Multi-Turn Infrastructure Evolution
+
+A software engineer collaborates with an AI assistant over three months to plan a microservice infrastructure.
+
+```text
+Turn 1 (Timestamp: 2024-03-01):
+User: "Our core API backend is deployed on AWS RDS PostgreSQL in us-east-1 with Redis caching."
+Assistant: "Understood. I will remember that your backend is PostgreSQL on AWS RDS in us-east-1."
+
+Turn 2 (Timestamp: 2024-04-15):
+User: "We decided to migrate completely away from AWS RDS to a self-managed CockroachDB cluster
+       on GCP because we need multi-region active-active distributed transactions."
+Assistant: "Noted. CockroachDB on GCP is now your primary distributed database."
+
+Turn 3 (Timestamp: 2024-05-30):
+User: "Write the production database connection initialization module and health check script."
+```
+
+---
+
+### Step 1: Raw Turn Ingestion & Atomic Claim Extraction
+
+When Turn 1 and Turn 2 are ingested, the extraction subsystem deconstructs each sentence into formal claims:
+
+```json
+[
+  {
+    "claim_id": "claim_001",
+    "turn_id": "turn_1",
+    "subject": "core API backend",
+    "predicate": "uses database engine",
+    "object": "PostgreSQL on AWS RDS",
+    "confidence": 0.94,
+    "source_doc_timestamp": "2024-03-01T00:00:00Z",
+    "temporal_expression": "currently",
+    "validity_interval": ["2024-03-01T00:00:00Z", "infinity"]
+  },
+  {
+    "claim_id": "claim_002",
+    "turn_id": "turn_2",
+    "subject": "core API backend",
+    "predicate": "uses database engine",
+    "object": "CockroachDB on GCP",
+    "confidence": 0.97,
+    "source_doc_timestamp": "2024-04-15T00:00:00Z",
+    "temporal_expression": "migrated completely away",
+    "validity_interval": ["2024-04-15T00:00:00Z", "infinity"]
+  }
+]
+```
+
+---
+
+### Step 2: Canonical Entity Linking via SBERT and DBSCAN
+
+1. **Mention Vectors:** Mentions `"core API backend"` (Turn 1) and `"we"` / implicit subject (Turn 2) are mapped into 384-dimensional dense vectors using Sentence-BERT.
+2. **Clustering:** DBSCAN groups both subject mentions into a unified canonical entity:
+   $$e^*_{\text{backend\_db}} = \text{"ent\_cluster\_42"}$$
+3. **Candidate Pairing:** Because `claim_001` and `claim_002` share canonical subject $e^*_{\text{backend\_db}}$ and compatible predicates (`uses database engine`), they are scheduled for pairwise relational evaluation.
+
+---
+
+### Step 3: Temporal Interval Normalization and Allen Calculus
+
+The Interval Resolver evaluates the temporal relationship between:
+- $\tau_1 = [2024\text{-}03\text{-}01, +\infty)$
+- $\tau_2 = [2024\text{-}04\text{-}15, +\infty)$
+
+1. **Topology:** Both intervals have open upper bounds, creating an overlapping region $[2024\text{-}04\text{-}15, +\infty)$.
+2. **Chronological Anchor:**
+   $$t_{\text{start}}(\tau_1) < t_{\text{start}}(\tau_2)$$
+3. **Allen Relation Output:** Evaluated as `overlaps` ($o$) with sequential precedence ($c_1 \text{ preceded } c_2$).
+
+---
+
+### Step 4: Staged NLI Verification and Logit Distribution
+
+The candidate pair is tokenized and fed into the `ALETHEX-Mini` INT8 cross-encoder:
+
+$$\text{Premise: "We migrated completely away from AWS RDS to CockroachDB on GCP on 2024-04-15."}$$
+$$\text{Hypothesis: "Our core API backend uses PostgreSQL on AWS RDS."}$$
+
+**Cross-Encoder Logit Output:**
+- $z_0 \text{ (Contradiction)} = +4.82 \implies \mathbf{p}_{\text{contradiction}} = \mathbf{0.982}$
+- $z_1 \text{ (Entailment)} = -1.14 \implies p_{\text{entailment}} = 0.011$
+- $z_2 \text{ (Neutral)} = -1.58 \implies p_{\text{neutral}} = 0.007$
+
+**Result:** High-confidence mutual exclusivity detected. Combined with sequential temporal ordering ($t_1 < t_2$), the relationship is classified as **`supersedes`**.
+
+---
+
+### Step 5: Dynamic Belief Graph Mutation and Supersession
+
+The belief graph executes the state transition:
+
+```text
+[Entity: core API backend]
+        |
+        +---> (Claim 001) [PostgreSQL on AWS RDS] (STATUS: INACTIVE / SUPERSEDED)
+        |       ^
+        |       |-- [EDGE: SUPERSEDES | Conf: 0.982 | Allen: overlaps]
+        |       |
+        +---> (Claim 002) [CockroachDB on GCP]    (STATUS: ACTIVE)
+```
+
+1. Edge `(claim_002, claim_001, type="supersedes")` is written to `G`.
+2. Node `claim_001.active` is flipped to `False`.
+3. Entity Consistency Index remains clean: $CI(e^*_{\text{backend\_db}}) = 1.000$ (conflict successfully reconciled).
+
+---
+
+### Step 6: Memory Reconciliation and Context Injection
+
+When Turn 3 arrives:
+*"Write the production database connection initialization module and health check script."*
+
+The standard vector store retrieves both Turn 1 and Turn 2. The ALETHEX reconciliation layer intercepts the retrieved entries:
+
+```python
+# Before ALETHEX: Both chunks passed to prompt
+[Retrieved Chunk 1] (Turn 1): "Our core API backend is deployed on AWS RDS PostgreSQL..."
+[Retrieved Chunk 2] (Turn 2): "We decided to migrate completely away to CockroachDB on GCP..."
+
+# After ALETHEX Filtering (Drop Mode):
+[Filtered Prompt Context]:
+"[2024-04-15] The core API backend uses CockroachDB on GCP (Active Production Database)."
+# Chunk 1 is suppressed because its graph node is marked INACTIVE.
+```
+
+---
+
+### Comparative Output Analysis: Standard LLM vs ALETHEX-Guarded LLM
+
+#### Without ALETHEX (Standard Append-Only Memory Failure)
+The LLM receives both chunks in context, becomes confused by chronological ambiguity, and hallucinates a conflicting hybrid implementation:
+
+```python
+# HALLUCINATED OUTPUT FROM UNGUARDED LLM:
+import psycopg2
+import os
+
+def get_db_connection():
+    # Connecting to AWS RDS PostgreSQL
+    conn = psycopg2.connect(
+        host="rds.us-east-1.amazonaws.com",
+        database="production",
+        user=os.environ.get("RDS_USER"),
+        password=os.environ.get("RDS_PASSWORD")
+    )
+    return conn
+
+# Wait, also initialize CockroachDB cluster endpoint on GCP...
+def get_cockroach_client():
+    ...
+```
+*Result: Production failure. Code attempts to establish connections to a decommissioned AWS database.*
+
+#### With ALETHEX (Reconciled Context)
+The LLM receives only verified active assertions and generates a clean, correct, single-target implementation:
+
+```python
+# RECONCILED OUTPUT FROM ALETHEX-GUARDED LLM:
+import psycopg2
+import ssl
+import os
+
+def init_cockroach_pool():
+    """Initializes connection pool to self-managed CockroachDB cluster on GCP."""
+    return psycopg2.connect(
+        host=os.environ.get("COCKROACH_GCP_HOST", "cockroach-cluster.gcp.internal"),
+        port=26257,
+        database="production",
+        user=os.environ.get("COCKROACH_USER"),
+        sslmode="verify-full",
+        sslrootcert="/etc/certs/ca.crt"
+    )
+
+def health_check():
+    conn = init_cockroach_pool()
+    with conn.cursor() as cur:
+        cur.execute("SELECT 1;")
+        return {"status": "healthy", "database": "CockroachDB-GCP"}
+```
+*Result: Flawless execution with zero obsolete references.*
+
+---
+
+### Real-Time User Interface Visualization
+
+In the user's browser, the ALETHEX Chrome Extension renders the live state directly over ChatGPT or Claude:
+
+```text
++-------------------------------------------------------------------------------+
+| ChatGPT - Architecture Planning                                               |
++-------------------------------------------------------------------------------+
+|                                                                               |
+| User: Write the production database connection initialization module...      |
+|                                                                               |
+| Assistant:                                                                    |
+| Here is the production CockroachDB connection pool configuration on GCP...    |
+|                                                                               |
+|   +-----------------------------------------------------------------------+   |
+|   | ALETHEX TRUTH HUD (Active)                                            |   |
+|   | Verified Claims: 14 | Contradictions Resolved: 1 | CI Score: 1.000    |   |
+|   | [Open Audit Drawer]  [Force Re-scan]                                  |   |
+|   +-----------------------------------------------------------------------+   |
+|                                                                               |
++-------------------------------------------------------------------------------+
+```
+
+When the user clicks **[Open Audit Drawer]**, the inspection modal displays:
+
+```text
+=================================================================================
+ALETHEX AUDIT LOG: ENTITY [core API backend]
+=================================================================================
+[2024-03-01] [SUPERSEDED] Uses PostgreSQL on AWS RDS (Conf: 0.94)
+      |
+      +---> [Superseded by turn_2 at 2024-04-15 | NLI Conf: 0.982 | Allen: overlaps]
+      |
+[2024-04-15] [ACTIVE]     Uses CockroachDB on GCP (Conf: 0.97)
+=================================================================================
+Consistency Index: 1.0000 | Active Conflicts: 0 | Staleness: 0.00
+```
 
 ---
 
