@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 330px;
+      padding: 16px;
+      background: #090d16;
+      color: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      user-select: none;
+    }
+    
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .logo {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 15px;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(6, 182, 212, 0.35);
+    }
+    .title {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      color: #ffffff;
+    }
+    .subtitle {
+      font-size: 10px;
+      color: #64748b;
+    }
+    .badge-v {
+      font-size: 10px;
+      background: #0f172a;
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 2px 7px;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+
+    /* Active Platform Card */
+    .platform-card {
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .platform-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .dot-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 10px #10b981;
+    }
+    .platform-text {
+      font-size: 12px;
+      font-weight: 600;
+      color: #f8fafc;
+    }
+    .status-tag {
+      font-size: 10px;
+      font-weight: 700;
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 2px 8px;
+      border-radius: 9999px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .stat-card {
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+    .stat-number {
+      font-size: 22px;
+      font-weight: 800;
+      color: #38bdf8;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    .stat-label {
+      font-size: 10px;
+      color: #94a3b8;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-top: 2px;
+    }
+
+    /* Settings Rows */
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 12px;
+      color: #cbd5e1;
+    }
+    
+    /* Switch */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 36px;
+      height: 20px;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #334155;
+      transition: .2s;
+      border-radius: 20px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .2s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: #0284c7;
+    }
+    input:checked + .slider:before {
+      transform: translateX(16px);
+    }
+
+    /* Action Button */
+    .audit-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+      color: #ffffff;
+      border: none;
+      padding: 11px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 12px;
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .audit-btn:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(2, 132, 199, 0.45);
+    }
+    .audit-btn:active {
+      transform: translateY(0);
+    }
+
+    /* Footer Links */
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 11px;
+    }
+    .footer a {
+      color: #38bdf8;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .footer a:hover {
+      color: #7dd3fc;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="brand">
+      <div class="logo">α</div>
+      <div>
+        <div class="title">ALETHEX</div>
+        <div class="subtitle">AI Memory & Truth Guard</div>
+      </div>
+    </div>
+    <span class="badge-v">v1.2</span>
+  </div>
+
+  <!-- Detected Platform Card -->
+  <div class="platform-card">
+    <div class="platform-status">
+      <span class="dot-pulse" id="dot-indicator"></span>
+      <span class="platform-text" id="site-name">Scanning Tab...</span>
+    </div>
+    <span class="status-tag" id="status-tag">ACTIVE</span>
+  </div>
+
+  <!-- Real-Time Metrics -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-number" id="stat-beliefs">0</div>
+      <div class="stat-label">Active Facts</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="stat-conflicts" style="color: #34d399;">0</div>
+      <div class="stat-label">Conflicts Blocked</div>
+    </div>
+  </div>
+
+  <!-- Toggles -->
+  <div class="setting-row">
+    <span>Highlight Drift in Chat</span>
+    <label class="switch">
+      <input type="checkbox" id="toggle-highlight" checked />
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <!-- Audit Button -->
+  <button class="audit-btn" id="audit-btn">
+    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+    <span>Audit Conversation Consistency</span>
+  </button>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span style="color:#64748b;">100% Local & Private</span>
+    <a href="http://localhost:8501" target="_blank">Full Dashboard &rarr;</a>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

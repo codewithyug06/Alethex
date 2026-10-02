@@ -1,0 +1,34 @@
+# NLI fine-tuning defaults for the laptop GPU (RTX 4050, 6.4GB VRAM). Override via --config.
+model_name: "cross-encoder/nli-deberta-v3-large"
+# 3 epochs: the base model is already NLI-pretrained (SNLI+MultiNLI), so this run is
+# domain-adaptation, not from-scratch training.
+# The "~4.4h/epoch" this comment previously claimed was never actually measured and was wrong --
+# the real measured throughput on this GPU (smoke test, 2026-09-30) was 7.72 samples/sec, which
+# puts the full 3-epoch / 1.33M-pair run at roughly 143 hours (~6 days), not ~13.5h. See
+# configs/training_h100.yaml for the much faster cloud-GPU profile used instead of waiting that out.
+# Raise to 4-5 if the eval curve in the generated report is still improving at epoch 3.
+epochs: 3
+batch_size: 8
+grad_accum: 2
+learning_rate: 1.0e-5
+save_steps: 500
+per_device_eval_batch_size: 16
+eval_accumulation_steps: 10
+weight_decay: 0.01
+warmup_ratio: 0.1
+save_total_limit: 3
+logging_steps: 100
+logging_steps_test_mode: 50
+optimizer: "adamw_bnb_8bit"
+test_batch_size: 4
+test_grad_accum: 1
+# Dataset paths, relative to ALETHEX_HOME (defaults to repo root).
+preprocessed_train: "dataset/preprocessed/nli/unified/train.jsonl"
+preprocessed_validation: "dataset/preprocessed/nli/unified/validation.jsonl"
+fallback_datasets:
+  - "dataset/tasksource_temporal-nli/train.jsonl"
+  - "dataset/stanfordnlp_snli/train.jsonl"
+  - "dataset/nyu-mll_multi_nli/train.jsonl"
+output_dir: "models/alethex-nli"
+results_dir: "results/training_3_epochs"
+

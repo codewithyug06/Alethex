@@ -1,0 +1,60 @@
+{
+  "manifest_version": 3,
+  "name": "ALETHEX — Universal AI Memory & Truth Guard",
+  "version": "1.2.0",
+  "description": "Universal factual consistency & temporal memory reconciliation guard for ChatGPT, Claude, Gemini, Copilot, DeepSeek, Perplexity, and Grok.",
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "ALETHEX Truth Guard",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://chatgpt.com/*",
+    "https://chat.openai.com/*",
+    "https://claude.ai/*",
+    "https://gemini.google.com/*",
+    "https://copilot.microsoft.com/*",
+    "https://www.perplexity.ai/*",
+    "https://chat.deepseek.com/*",
+    "https://poe.com/*",
+    "https://chat.mistral.ai/*",
+    "https://huggingface.co/chat/*",
+    "https://x.com/i/grok/*",
+    "http://localhost:*/*",
+    "http://127.0.0.1:*/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*",
+        "https://claude.ai/*",
+        "https://gemini.google.com/*",
+        "https://copilot.microsoft.com/*",
+        "https://www.perplexity.ai/*",
+        "https://chat.deepseek.com/*",
+        "https://poe.com/*",
+        "https://chat.mistral.ai/*",
+        "https://huggingface.co/chat/*",
+        "https://x.com/i/grok/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

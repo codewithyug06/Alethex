@@ -1,0 +1,21 @@
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+
+# Pipeline run artifacts
+output/
+output_*/
+test_output*/
+logs/
+
+# Trained model checkpoints
+models/
+
+# Environment
+.env
+.venv/
+venv/

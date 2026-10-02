@@ -1,0 +1,91 @@
+<svg width="900" height="700" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#1a1a24" />
+  
+  <text x="450" y="40" font-family="Arial" font-size="28" font-weight="bold" fill="#ffffff" text-anchor="middle">CHRONOS Dataset Pipeline Map</text>
+  
+  <!-- NLI Backbone -->
+  <g transform="translate(50, 100)">
+    <rect width="200" height="120" rx="10" fill="#2d3748" stroke="#4a5568" stroke-width="2"/>
+    <text x="100" y="30" font-family="Arial" font-size="16" font-weight="bold" fill="#e2e8f0" text-anchor="middle">Step 1: NLI Backbone</text>
+    <text x="100" y="60" font-family="Arial" font-size="14" fill="#a0aec0" text-anchor="middle">nyu-mll/multi_nli</text>
+    <text x="100" y="85" font-family="Arial" font-size="14" fill="#a0aec0" text-anchor="middle">stanfordnlp/snli</text>
+  </g>
+
+  <!-- Temporal NLI -->
+  <g transform="translate(350, 100)">
+    <rect width="200" height="120" rx="10" fill="#2d3748" stroke="#4a5568" stroke-width="2"/>
+    <text x="100" y="30" font-family="Arial" font-size="16" font-weight="bold" fill="#e2e8f0" text-anchor="middle">Step 2: Temporal NLI</text>
+    <text x="100" y="60" font-family="Arial" font-size="14" fill="#a0aec0" text-anchor="middle">tasksource/temporal-nli</text>
+    <text x="100" y="85" font-family="Arial" font-size="12" fill="#718096" text-anchor="middle">(TempEval-3 based)</text>
+  </g>
+
+  <!-- Arrow -->
+  <path d="M250,160 L335,160" stroke="#a0aec0" stroke-width="2" marker-end="url(#arrowhead)" />
+  
+  <g transform="translate(650, 100)">
+    <rect width="200" height="120" rx="10" fill="#2c7a7b" stroke="#319795" stroke-width="2"/>
+    <text x="100" y="30" font-family="Arial" font-size="16" font-weight="bold" fill="#e6fffa" text-anchor="middle">Temporal-Aware NLI</text>
+    <text x="100" y="60" font-family="Arial" font-size="14" fill="#b2f5ea" text-anchor="middle">(DeBERTa-MNLI)</text>
+  </g>
+
+  <path d="M550,160 L635,160" stroke="#a0aec0" stroke-width="2" marker-end="url(#arrowhead)" />
+  
+  <!-- Middle Layer: Real-world Corpuses -->
+  <g transform="translate(50, 300)">
+    <rect width="200" height="100" rx="10" fill="#2d3748" stroke="#4a5568" stroke-width="2"/>
+    <text x="100" y="30" font-family="Arial" font-size="16" font-weight="bold" fill="#e2e8f0" text-anchor="middle">Step 3: Extraction Stress</text>
+    <text x="100" y="60" font-family="Arial" font-size="14" fill="#a0aec0" text-anchor="middle">sentence-transformers/</text>
+    <text x="100" y="80" font-family="Arial" font-size="14" fill="#a0aec0" text-anchor="middle">all-nli (MSC)</text>
+  </g>
+
+  <g transform="translate(350, 300)">
+    <rect width="200" height="100" rx="10" fill="#2d3748" stroke="#4a5568" stroke-width="2"/>
+    <text x="100" y="30" font-family="Arial" font-size="16" font-weight="bold" fill="#e2e8f0" text-anchor="middle">Step 4: Temporal Div.</text>
+    <text x="100" y="60" font-family="Arial" font-size="14" fill="#a0aec0" text-anchor="middle">jihyoung/</text>
+    <text x="100" y="80" font-family="Arial" font-size="14" fill="#a0aec0" text-anchor="middle">ConversationChronicles</text>
+  </g>
+
+  <g transform="translate(650, 300)">
+    <rect width="200" height="100" rx="10" fill="#4a5568" stroke="#718096" stroke-width="2"/>
+    <text x="100" y="45" font-family="Arial" font-size="18" font-weight="bold" fill="#f7fafc" text-anchor="middle">CHRONOS</text>
+    <text x="100" y="70" font-family="Arial" font-size="14" fill="#cbd5e0" text-anchor="middle">Pipeline Core</text>
+  </g>
+
+  <path d="M250,350 L635,350" stroke="#a0aec0" stroke-width="2" marker-end="url(#arrowhead)" />
+  <path d="M550,350 L635,350" stroke="#a0aec0" stroke-width="2" marker-end="url(#arrowhead)" />
+  <path d="M750,220 L750,285" stroke="#a0aec0" stroke-width="2" marker-end="url(#arrowhead)" />
+
+  <!-- Bottom Layer: Evaluation -->
+  <g transform="translate(50, 500)">
+    <rect width="250" height="150" rx="10" fill="#742a2a" stroke="#9b2c2c" stroke-width="2"/>
+    <text x="125" y="30" font-family="Arial" font-size="16" font-weight="bold" fill="#fed7d7" text-anchor="middle">Step 5: Evaluation Data</text>
+    <text x="125" y="65" font-family="Arial" font-size="14" fill="#feb2b2" text-anchor="middle">snap-research/LoCoMo</text>
+    <text x="125" y="95" font-family="Arial" font-size="14" fill="#feb2b2" text-anchor="middle">Mohammadta/BEAM</text>
+    <text x="125" y="125" font-family="Arial" font-size="14" fill="#feb2b2" text-anchor="middle">xiaowu0162/longmemeval</text>
+  </g>
+
+  <g transform="translate(350, 500)">
+    <rect width="250" height="150" rx="10" fill="#7b341e" stroke="#9c4221" stroke-width="2"/>
+    <text x="125" y="40" font-family="Arial" font-size="16" font-weight="bold" fill="#feebc8" text-anchor="middle">Step 6: Synthetic</text>
+    <text x="125" y="75" font-family="Arial" font-size="14" fill="#fbd38d" text-anchor="middle">CHRONOS Benchmark</text>
+    <text x="125" y="105" font-family="Arial" font-size="14" fill="#fbd38d" text-anchor="middle">(Procedural Pairs)</text>
+  </g>
+
+  <g transform="translate(650, 500)">
+    <rect width="200" height="150" rx="10" fill="#22543d" stroke="#276749" stroke-width="2"/>
+    <text x="100" y="60" font-family="Arial" font-size="18" font-weight="bold" fill="#c6f6d5" text-anchor="middle">Final Metrics</text>
+    <text x="100" y="90" font-family="Arial" font-size="14" fill="#9ae6b4" text-anchor="middle">Consistency Index</text>
+    <text x="100" y="115" font-family="Arial" font-size="14" fill="#9ae6b4" text-anchor="middle">Contradiction Rec. Rate</text>
+  </g>
+
+  <path d="M750,400 L750,485" stroke="#a0aec0" stroke-width="2" marker-end="url(#arrowhead)" />
+  <path d="M300,575 L635,575" stroke="#a0aec0" stroke-width="2" marker-end="url(#arrowhead)" />
+  <path d="M600,575 L635,575" stroke="#a0aec0" stroke-width="2" marker-end="url(#arrowhead)" />
+  
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#a0aec0" />
+    </marker>
+  </defs>
+</svg>

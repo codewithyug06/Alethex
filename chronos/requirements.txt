@@ -1,0 +1,19 @@
+# Generated from pyproject.toml dependencies. Prefer `pip install .` for
+# normal use; this file is for environments that need a flat pip install.
+spacy
+sentence-transformers
+transformers
+torch
+networkx
+streamlit
+plotly
+pydantic>=2.0
+sutime
+dateparser
+anthropic
+click
+loguru
+pytest
+pyyaml
+rich
+python-dateutil

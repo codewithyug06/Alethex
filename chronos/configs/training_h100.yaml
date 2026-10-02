@@ -1,0 +1,36 @@
+# NLI fine-tuning profile for an NVIDIA H100 80GB (cloud instance), used instead of
+# configs/training.yaml (the laptop profile) because the laptop's RTX 4050 (6.4GB VRAM)
+# measured only 7.72 samples/sec, putting the full 3-epoch run at ~143 hours (~6 days).
+#
+# With 80GB VRAM, DeBERTa-v3-large (304M params) doesn't need gradient checkpointing or fp16
+# VRAM-survival tricks -- bf16 + a much larger batch size uses the GPU's actual compute instead.
+# Run a smoke test on the cloud box first (same as the laptop) to get a *real* measured
+# throughput before trusting any time estimate -- untested comments are exactly what caused the
+# ~4.4h/epoch laptop estimate to be wrong by ~10x.
+model_name: "cross-encoder/nli-deberta-v3-large"
+epochs: 3
+batch_size: 128
+grad_accum: 1
+learning_rate: 1.0e-5
+save_steps: 500
+per_device_eval_batch_size: 256
+eval_accumulation_steps: 10
+weight_decay: 0.01
+warmup_ratio: 0.1
+save_total_limit: 3
+logging_steps: 50
+logging_steps_test_mode: 10
+optimizer: "adamw_bnb_8bit"
+test_batch_size: 32
+test_grad_accum: 1
+# Dataset paths, relative to ALETHEX_HOME (defaults to repo root / cwd). Regenerate on the
+# cloud box via `python -m alethex.data.preprocess_nli` rather than copying the large local
+# JSONL files over SSH -- the cloud instance's own internet is faster for the HF dataset downloads.
+preprocessed_train: "dataset/preprocessed/nli/unified/train.jsonl"
+preprocessed_validation: "dataset/preprocessed/nli/unified/validation.jsonl"
+output_dir: "models/alethex-nli-h100"
+results_dir: "results/training_h100"
+# VRAM is not the constraint here, so skip the laptop's survival measures entirely.
+fp16: false
+bf16: true
+gradient_checkpointing: false

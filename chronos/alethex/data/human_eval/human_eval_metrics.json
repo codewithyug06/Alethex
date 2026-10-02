@@ -1,0 +1,32 @@
+{
+  "total_pairs": 300,
+  "raw_agreement": 0.9566666666666667,
+  "cohen_kappa": 0.9337916984975808,
+  "classes": [
+    "conflicting",
+    "consistent",
+    "superseded"
+  ],
+  "confusion_matrix": [
+    [
+      69,
+      0,
+      6
+    ],
+    [
+      0,
+      115,
+      5
+    ],
+    [
+      2,
+      0,
+      103
+    ]
+  ],
+  "distribution": {
+    "consistent": 120,
+    "conflicting": 75,
+    "superseded": 105
+  }
+}

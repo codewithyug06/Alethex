@@ -1,0 +1,36 @@
+[project]
+name = "alethex"
+version = "0.1.0"
+description = "Temporal Belief Consistency Engine"
+authors = [
+    { name = "Yugendhar S" }
+]
+dependencies = [
+    "spacy",
+    "sentence-transformers",
+    "transformers",
+    "torch",
+    "networkx",
+    "streamlit",
+    "plotly",
+    "pydantic>=2.0",
+    "sutime",
+    "dateparser",
+    "openai",
+    "pytest",
+    "pyyaml",
+    "rich",
+    "python-dateutil"
+]
+readme = "README.md"
+requires-python = ">= 3.9"
+
+[project.scripts]
+alethex = "alethex.cli:main"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["alethex*"]

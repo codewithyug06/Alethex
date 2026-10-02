@@ -1,0 +1,6 @@
+# NLI configuration
+model: "cross-encoder/nli-deberta-v3-large"
+device: "cpu"
+threshold: 0.7
+contradiction_top_n: 50
+anthropic_model: "claude-sonnet-5"
