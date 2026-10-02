@@ -797,7 +797,7 @@ git clone https://github.com/codewithyug06/Alethex.git
 cd Alethex
 
 # Navigate to the Python core engine
-cd chronos
+cd alethex
 
 # Create and activate a virtual environment (optional but recommended)
 python -m venv venv
@@ -969,7 +969,7 @@ Alethex/
 |-- dist/
 |   `-- alethex-extension-v1.0.0.zip      # Packaged extension archive for direct distribution
 |
-`-- chronos/                              # Python Verification Engine Package
+`-- alethex/                              # Python Verification Engine Package
     |-- pyproject.toml                    # Package metadata, dependencies, and build specs
     |-- requirements.txt                  # Pinned runtime dependencies
     |-- alethex_desktop.py                # Native Tkinter desktop monitoring companion
@@ -1080,8 +1080,8 @@ ALETHEX includes an automated test suite comprising 48 unit and integration test
 To execute the test suite:
 
 ```bash
-# Navigate to the chronos directory
-cd chronos
+# Navigate to the alethex directory
+cd alethex
 
 # Run the complete test suite
 python -m pytest tests/ -v
@@ -1116,4 +1116,4 @@ If you utilize ALETHEX in your research or production systems, please cite the f
 
 ## License
 
-This project is licensed under the **MIT License**. See the [LICENSE](chronos/LICENSE) file for the complete license terms.
+This project is licensed under the **MIT License**. See the [LICENSE](alethex/LICENSE) file for the complete license terms.

@@ -9,11 +9,11 @@
 # Specification PDFs & raw text extractions
 *.pdf
 extracted_spec.txt
-chronos/paper/
-chronos/results/
+alethex/paper/
+alethex/results/
 
 # Large ML model checkpoints & weights (>100MB breaks GitHub push limit)
-chronos/models/
+alethex/models/
 *.onnx
 *.safetensors
 *.bin
@@ -22,7 +22,7 @@ chronos/models/
 *.h5
 
 # Large preprocessed and raw datasets
-chronos/dataset/
+alethex/dataset/
 *.jsonl
 *.csv
 
