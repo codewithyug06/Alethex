@@ -31,6 +31,9 @@
   let isHighlightingEnabled = true;
   let lastMessageCount = 0;
   let isDrawerOpen = false;
+  let activeTab = "overview"; // "overview" | "facts" | "conflicts"
+  let factSearchQuery = "";
+  let userThemeSetting = "auto"; // "auto" | "light" | "dark"
 
   // NLI Worker — Transformers.js model running in a Web Worker (non-blocking)
   let nliWorker = null;
@@ -45,22 +48,20 @@
       nliWorker.onmessage = (e) => {
         const { id, type, results, error, message } = e.data;
         if (type === "status") {
-          console.log("[ALETHEX NLI]", message);
           if (message && message.includes("ready")) nliWorkerReady = true;
           return;
         }
-        if (type === "error") { console.warn("[ALETHEX NLI] Error:", message); return; }
+        if (type === "error") { return; }
         if (type === "pong") { return; }
         if (id && nliCallbacks[id]) {
           nliCallbacks[id].resolve(results || []);
           delete nliCallbacks[id];
         }
       };
-      nliWorker.onerror = (e) => console.warn("[ALETHEX NLI] Worker error:", e.message);
-      // Preload the model immediately so first audit doesn't wait for download
+      nliWorker.onerror = () => {};
       nliWorker.postMessage({ id: 0, type: "ping" });
     } catch (e) {
-      console.warn("[ALETHEX NLI] Worker unavailable:", e.message);
+      // Worker fallback
     }
   }
 
@@ -70,14 +71,56 @@
       const id = ++nliCallId;
       nliCallbacks[id] = { resolve };
       nliWorker.postMessage({ id, type: "nli_batch", data: { pairs, threshold } });
-      // Timeout after 30s — fallback to regex-only results
       setTimeout(() => {
         if (nliCallbacks[id]) { delete nliCallbacks[id]; resolve([]); }
       }, 30000);
     });
   }
 
-  // 1. Inject Styles Once
+  // ==========================================
+  // 1. Theme Management (Light & Dark)
+  // ==========================================
+  function detectHostTheme() {
+    if (userThemeSetting === "light" || userThemeSetting === "dark") {
+      return userThemeSetting;
+    }
+    const docEl = document.documentElement;
+    const body = document.body;
+
+    // Check host class or data attributes (ChatGPT, Claude, etc.)
+    const isDarkClass = docEl.classList.contains("dark") ||
+                        body.classList.contains("dark") ||
+                        docEl.getAttribute("data-theme") === "dark" ||
+                        docEl.getAttribute("data-color-mode") === "dark";
+
+    if (isDarkClass) return "dark";
+
+    // Check system preference
+    if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      return "dark";
+    }
+
+    return "light";
+  }
+
+  function syncTheme() {
+    const root = document.getElementById("alethex-root");
+    if (!root) return;
+    const effective = detectHostTheme();
+    root.setAttribute("data-theme", effective);
+
+    const themeToggleBtn = document.getElementById("alethex-theme-btn");
+    if (themeToggleBtn) {
+      themeToggleBtn.title = `Current Theme: ${effective.toUpperCase()} (Click to toggle)`;
+      themeToggleBtn.innerHTML = effective === "light"
+        ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line></svg>`
+        : `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+    }
+  }
+
+  // ==========================================
+  // 2. Inject Styles (Human-Crafted Dual Theme)
+  // ==========================================
   function injectStyles() {
     if (document.getElementById("alethex-styles")) return;
     const style = document.createElement("style");
@@ -85,173 +128,382 @@
     style.textContent = `
       #alethex-root {
         position: fixed;
-        bottom: 20px;
-        right: 20px;
+        bottom: 24px;
+        right: 24px;
         z-index: 2147483647;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        color: #f8fafc;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Inter", sans-serif;
         pointer-events: none;
+        -webkit-font-smoothing: antialiased;
       }
+
+      /* Dark Theme Tokens */
+      #alethex-root[data-theme="dark"] {
+        --al-bg-hud: rgba(18, 22, 30, 0.88);
+        --al-bg-drawer: #0f131a;
+        --al-bg-header: #151a24;
+        --al-bg-surface: #171d27;
+        --al-bg-surface-elevated: #1f2633;
+        --al-bg-surface-hover: #262f40;
+        --al-border-subtle: rgba(255, 255, 255, 0.08);
+        --al-border-strong: rgba(255, 255, 255, 0.16);
+        --al-text-primary: #f1f5f9;
+        --al-text-secondary: #94a3b8;
+        --al-text-tertiary: #64748b;
+        --al-accent: #2563eb;
+        --al-accent-hover: #1d4ed8;
+        --al-accent-subtle: rgba(37, 99, 235, 0.12);
+        --al-accent-text: #60a5fa;
+        --al-green: #10b981;
+        --al-green-text: #34d399;
+        --al-green-subtle: rgba(16, 185, 129, 0.12);
+        --al-amber: #f59e0b;
+        --al-amber-text: #fbbf24;
+        --al-amber-subtle: rgba(245, 158, 11, 0.12);
+        --al-red: #ef4444;
+        --al-red-text: #f87171;
+        --al-red-subtle: rgba(239, 68, 68, 0.12);
+        --al-shadow-hud: 0 4px 20px -2px rgba(0, 0, 0, 0.5), 0 2px 6px -1px rgba(0, 0, 0, 0.3);
+        --al-shadow-drawer: 0 20px 45px -10px rgba(0, 0, 0, 0.75), 0 0 0 1px var(--al-border-subtle);
+        --al-tab-bg: #11151d;
+      }
+
+      /* Light Theme Tokens */
+      #alethex-root[data-theme="light"] {
+        --al-bg-hud: rgba(255, 255, 255, 0.92);
+        --al-bg-drawer: #ffffff;
+        --al-bg-header: #f8fafc;
+        --al-bg-surface: #f8fafc;
+        --al-bg-surface-elevated: #f1f5f9;
+        --al-bg-surface-hover: #e2e8f0;
+        --al-border-subtle: rgba(15, 23, 42, 0.08);
+        --al-border-strong: rgba(15, 23, 42, 0.16);
+        --al-text-primary: #0f172a;
+        --al-text-secondary: #475569;
+        --al-text-tertiary: #94a3b8;
+        --al-accent: #2563eb;
+        --al-accent-hover: #1d4ed8;
+        --al-accent-subtle: rgba(37, 99, 235, 0.08);
+        --al-accent-text: #1d4ed8;
+        --al-green: #059669;
+        --al-green-text: #059669;
+        --al-green-subtle: rgba(5, 150, 105, 0.08);
+        --al-amber: #d97706;
+        --al-amber-text: #d97706;
+        --al-amber-subtle: rgba(217, 119, 6, 0.08);
+        --al-red: #dc2626;
+        --al-red-text: #dc2626;
+        --al-red-subtle: rgba(220, 38, 38, 0.08);
+        --al-shadow-hud: 0 4px 20px -2px rgba(15, 23, 42, 0.12), 0 2px 6px -1px rgba(15, 23, 42, 0.06);
+        --al-shadow-drawer: 0 20px 45px -10px rgba(15, 23, 42, 0.18), 0 0 0 1px var(--al-border-subtle);
+        --al-tab-bg: #e2e8f0;
+      }
+
+      /* Floating HUD Capsule */
       #alethex-hud {
         pointer-events: auto;
         display: flex;
         align-items: center;
         gap: 8px;
-        background: rgba(11, 15, 25, 0.88);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 0 15px -3px rgba(56, 189, 248, 0.15);
+        background: var(--al-bg-hud);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--al-border-subtle);
+        box-shadow: var(--al-shadow-hud);
         border-radius: 9999px;
-        padding: 7px 14px;
+        padding: 6px 13px;
         cursor: pointer;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         user-select: none;
+        color: var(--al-text-primary);
       }
       #alethex-hud:hover {
         transform: translateY(-2px);
-        border-color: rgba(56, 189, 248, 0.5);
-        box-shadow: 0 14px 30px -5px rgba(0, 0, 0, 0.7), 0 0 20px -2px rgba(56, 189, 248, 0.3);
+        border-color: var(--al-border-strong);
+        box-shadow: var(--al-shadow-hud), 0 0 0 3px var(--al-accent-subtle);
       }
       .alethex-dot {
-        width: 8px;
-        height: 8px;
+        width: 7px;
+        height: 7px;
         border-radius: 50%;
-        background: #10b981;
-        box-shadow: 0 0 8px #10b981;
-        transition: background-color 0.3s;
+        background: var(--al-green);
+        position: relative;
+        transition: background-color 0.25s ease;
       }
-      .alethex-dot.amber { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
-      .alethex-dot.red { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
-      
+      .alethex-dot.amber { background: var(--al-amber); }
+      .alethex-dot.red { background: var(--al-red); }
+      .alethex-dot.gray { background: var(--al-text-tertiary); }
+
       .alethex-hud-title {
         font-size: 12px;
         font-weight: 700;
-        letter-spacing: 0.3px;
-        color: #ffffff;
+        letter-spacing: -0.1px;
+        color: var(--al-text-primary);
       }
       .alethex-hud-sub {
         font-size: 11px;
-        color: #94a3b8;
+        color: var(--al-text-secondary);
         font-weight: 500;
       }
 
-      /* Inspector Drawer */
+      /* Inspector Drawer / Slide-Over Modal */
       #alethex-drawer {
         pointer-events: auto;
         position: absolute;
-        bottom: 50px;
+        bottom: 46px;
         right: 0;
-        width: 380px;
-        max-width: calc(100vw - 40px);
-        max-height: 520px;
-        background: #090d16;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85);
-        border-radius: 16px;
+        width: 384px;
+        max-width: calc(100vw - 32px);
+        max-height: 560px;
+        background: var(--al-bg-drawer);
+        border: 1px solid var(--al-border-subtle);
+        box-shadow: var(--al-shadow-drawer);
+        border-radius: 14px;
         display: none;
         flex-direction: column;
         overflow: hidden;
-        animation: alethex-slide 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        animation: alethex-pop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        color: var(--al-text-primary);
       }
-      @keyframes alethex-slide {
-        from { opacity: 0; transform: translateY(8px) scale(0.98); }
+      @keyframes alethex-pop {
+        from { opacity: 0; transform: translateY(8px) scale(0.97); }
         to { opacity: 1; transform: translateY(0) scale(1); }
       }
-      .alethex-header {
-        padding: 14px 16px;
-        background: #0f172a;
-        border-bottom: 1px solid #1e293b;
+
+      /* Drawer Header */
+      .alethex-drawer-header {
+        padding: 12px 16px;
+        background: var(--al-bg-header);
+        border-bottom: 1px solid var(--al-border-subtle);
         display: flex;
         align-items: center;
         justify-content: space-between;
       }
-      .alethex-brand {
+      .alethex-brand-lockup {
         display: flex;
         align-items: center;
         gap: 8px;
       }
-      .alethex-icon {
-        width: 24px;
-        height: 24px;
+      .alethex-brand-badge {
+        width: 22px;
+        height: 22px;
         border-radius: 6px;
-        background: linear-gradient(135deg, #06b6d4, #3b82f6);
-        color: #ffffff;
+        background: var(--al-accent-subtle);
+        border: 1px solid var(--al-border-subtle);
+        color: var(--al-accent-text);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: 800;
-        font-size: 13px;
       }
-      .alethex-body {
-        padding: 16px;
-        overflow-y: auto;
+      .alethex-drawer-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--al-text-primary);
+        line-height: 1.2;
+      }
+      .alethex-platform-pill {
+        font-size: 10px;
+        color: var(--al-text-secondary);
+        font-weight: 500;
+      }
+      .alethex-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .alethex-tool-btn {
+        background: var(--al-bg-surface);
+        border: 1px solid var(--al-border-subtle);
+        color: var(--al-text-secondary);
+        width: 26px;
+        height: 26px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .alethex-tool-btn:hover {
+        background: var(--al-bg-surface-hover);
+        color: var(--al-text-primary);
+        border-color: var(--al-border-strong);
+      }
+
+      /* Segmented Tabs Control */
+      .alethex-tabs {
+        display: flex;
+        gap: 4px;
+        padding: 8px 16px;
+        background: var(--al-bg-header);
+        border-bottom: 1px solid var(--al-border-subtle);
+      }
+      .alethex-tab-btn {
         flex: 1;
+        background: transparent;
+        border: none;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        font-family: inherit;
+        color: var(--al-text-secondary);
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+      }
+      .alethex-tab-btn:hover {
+        color: var(--al-text-primary);
+        background: var(--al-bg-surface);
+      }
+      .alethex-tab-btn.active {
+        background: var(--al-bg-surface-elevated);
+        color: var(--al-text-primary);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+      }
+      .alethex-tab-count {
+        font-size: 10px;
+        font-family: var(--font-mono);
+        padding: 1px 5px;
+        border-radius: 999px;
+        background: var(--al-bg-surface);
+        color: var(--al-text-secondary);
+      }
+      .alethex-tab-btn.active .alethex-tab-count {
+        background: var(--al-accent-subtle);
+        color: var(--al-accent-text);
+      }
+
+      /* Drawer Content Body */
+      .alethex-drawer-body {
+        padding: 14px 16px;
+        overflow-y: auto;
+        max-height: 400px;
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 10px;
         font-size: 12px;
       }
+
+      /* Card Elements */
       .alethex-card {
-        background: #0f172a;
-        border: 1px solid #1e293b;
-        border-radius: 10px;
-        padding: 12px;
+        background: var(--al-bg-surface);
+        border: 1px solid var(--al-border-subtle);
+        border-radius: 8px;
+        padding: 10px 12px;
+        transition: border-color 0.15s ease;
       }
+      .alethex-card:hover {
+        border-color: var(--al-border-strong);
+      }
+
+      /* Badges */
       .alethex-badge {
         font-size: 10px;
         font-weight: 700;
         padding: 2px 7px;
-        border-radius: 9999px;
-        text-transform: uppercase;
+        border-radius: 6px;
+        letter-spacing: 0.2px;
       }
-      .alethex-badge.green { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
-      .alethex-badge.amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-      .alethex-badge.red { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+      .alethex-badge.green { background: var(--al-green-subtle); color: var(--al-green-text); border: 1px solid rgba(16, 185, 129, 0.2); }
+      .alethex-badge.amber { background: var(--al-amber-subtle); color: var(--al-amber-text); border: 1px solid rgba(245, 158, 11, 0.2); }
+      .alethex-badge.red { background: var(--al-red-subtle); color: var(--al-red-text); border: 1px solid rgba(239, 68, 68, 0.2); }
 
-      .alethex-btn {
+      /* Search Input */
+      .alethex-search-box {
+        position: relative;
+        margin-bottom: 4px;
+      }
+      .alethex-search-input {
         width: 100%;
-        background: linear-gradient(135deg, #0284c7, #2563eb);
+        background: var(--al-bg-surface);
+        border: 1px solid var(--al-border-subtle);
+        border-radius: 6px;
+        padding: 7px 10px 7px 28px;
+        font-size: 11px;
+        font-family: inherit;
+        color: var(--al-text-primary);
+        outline: none;
+        transition: border-color 0.15s ease;
+      }
+      .alethex-search-input:focus {
+        border-color: var(--al-accent);
+      }
+      .alethex-search-icon {
+        position: absolute;
+        left: 8px;
+        top: 8px;
+        color: var(--al-text-tertiary);
+        pointer-events: none;
+      }
+
+      /* Buttons */
+      .alethex-action-btn {
+        width: 100%;
+        background: var(--al-accent);
         color: #ffffff;
         border: none;
-        padding: 9px;
-        border-radius: 8px;
+        padding: 8px 12px;
+        border-radius: 6px;
         font-size: 12px;
         font-weight: 600;
+        font-family: inherit;
         cursor: pointer;
-        transition: opacity 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: background-color 0.15s ease;
       }
-      .alethex-btn:hover { opacity: 0.92; }
-      
-      .alethex-btn-sub {
+      .alethex-action-btn:hover { background: var(--al-accent-hover); }
+
+      .alethex-sub-btn {
         width: 100%;
-        background: #1e293b;
-        color: #cbd5e1;
-        border: 1px solid #334155;
-        padding: 7px;
-        border-radius: 8px;
+        background: var(--al-bg-surface);
+        border: 1px solid var(--al-border-subtle);
+        color: var(--al-text-primary);
+        padding: 7px 10px;
+        border-radius: 6px;
         font-size: 11px;
         font-weight: 500;
+        font-family: inherit;
         cursor: pointer;
-        margin-top: 6px;
+        margin-top: 4px;
+        transition: all 0.15s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
       }
-      .alethex-btn-sub:hover { background: #334155; }
+      .alethex-sub-btn:hover {
+        background: var(--al-bg-surface-hover);
+        border-color: var(--al-border-strong);
+      }
 
+      /* In-Chat Message Highlighting (Subtle & Non-Disruptive) */
       .alethex-highlight {
-        outline: 2px solid #ef4444 !important;
-        background: rgba(239, 68, 68, 0.08) !important;
-        border-radius: 6px;
+        position: relative !important;
+        border-left: 3.5px solid var(--al-red) !important;
+        background: var(--al-red-subtle) !important;
+        border-radius: 0 8px 8px 0 !important;
+        transition: background-color 0.2s ease;
       }
       .alethex-highlight-amber {
-        outline: 2px dashed #f59e0b !important;
-        background: rgba(245, 158, 11, 0.06) !important;
-        border-radius: 6px;
+        position: relative !important;
+        border-left: 3.5px solid var(--al-amber) !important;
+        background: var(--al-amber-subtle) !important;
+        border-radius: 0 8px 8px 0 !important;
+        transition: background-color 0.2s ease;
       }
     `;
     document.head.appendChild(style);
   }
 
-  // 2. Initialize HUD Once
+  // ==========================================
+  // 3. Initialize HUD and In-Page Drawer
+  // ==========================================
   function initDOM() {
     injectStyles();
 
@@ -259,37 +511,93 @@
     if (!root) {
       root = document.createElement("div");
       root.id = "alethex-root";
+      root.setAttribute("data-theme", detectHostTheme());
       root.innerHTML = `
-        <div id="alethex-hud">
+        <div id="alethex-hud" title="Click to open ALETHEX Truth Drawer">
           <span class="alethex-dot" id="alethex-dot"></span>
           <span class="alethex-hud-title">ALETHEX</span>
-          <span style="color:#475569;">·</span>
+          <span style="color:var(--al-text-tertiary); font-size:10px;">·</span>
           <span class="alethex-hud-sub" id="alethex-hud-status">Guarding</span>
         </div>
         <div id="alethex-drawer">
-          <div class="alethex-header">
-            <div class="alethex-brand">
-              <div class="alethex-icon">α</div>
+          <div class="alethex-drawer-header">
+            <div class="alethex-brand-lockup">
+              <div class="alethex-brand-badge">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  <path d="m9 12 2 2 4-4"/>
+                </svg>
+              </div>
               <div>
-                <div style="font-weight:700; font-size:13px; color:#ffffff;">ALETHEX Truth Guard</div>
-                <div style="font-size:10px; color:#94a3b8;">${platform} Active</div>
+                <div class="alethex-drawer-title">ALETHEX Inspector</div>
+                <div class="alethex-platform-pill">${platform} Active</div>
               </div>
             </div>
-            <button id="alethex-close" style="background:none; border:none; color:#94a3b8; font-size:18px; cursor:pointer;">&times;</button>
+            <div class="alethex-header-actions">
+              <button class="alethex-tool-btn" id="alethex-theme-btn" title="Toggle Light / Dark Theme">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="5"></circle>
+                  <line x1="12" y1="1" x2="12" y2="3"></line>
+                  <line x1="12" y1="21" x2="12" y2="23"></line>
+                </svg>
+              </button>
+              <button class="alethex-tool-btn" id="alethex-close" title="Close Drawer">&times;</button>
+            </div>
           </div>
-          <div class="alethex-body" id="alethex-drawer-body">
-            <!-- Dynamic Content -->
+
+          <!-- Tab Bar -->
+          <div class="alethex-tabs">
+            <button class="alethex-tab-btn active" id="tab-btn-overview">
+              <span>Overview</span>
+            </button>
+            <button class="alethex-tab-btn" id="tab-btn-facts">
+              <span>Facts</span>
+              <span class="alethex-tab-count" id="tab-count-facts">0</span>
+            </button>
+            <button class="alethex-tab-btn" id="tab-btn-conflicts">
+              <span>Conflicts</span>
+              <span class="alethex-tab-count" id="tab-count-conflicts">0</span>
+            </button>
+          </div>
+
+          <!-- Body -->
+          <div class="alethex-drawer-body" id="alethex-drawer-body">
+            <!-- Dynamic Content Injected Here -->
           </div>
         </div>
       `;
       document.body.appendChild(root);
 
+      // Bind events
       document.getElementById("alethex-hud").addEventListener("click", toggleDrawer);
       document.getElementById("alethex-close").addEventListener("click", () => {
         isDrawerOpen = false;
         document.getElementById("alethex-drawer").style.display = "none";
       });
+
+      // In-page Theme Toggle
+      document.getElementById("alethex-theme-btn").addEventListener("click", () => {
+        const cur = detectHostTheme();
+        userThemeSetting = cur === "dark" ? "light" : "dark";
+        try {
+          chrome.storage.local.set({ userTheme: userThemeSetting });
+        } catch (e) {}
+        syncTheme();
+      });
+
+      // Tabs click listeners
+      document.getElementById("tab-btn-overview").addEventListener("click", () => switchDrawerTab("overview"));
+      document.getElementById("tab-btn-facts").addEventListener("click", () => switchDrawerTab("facts"));
+      document.getElementById("tab-btn-conflicts").addEventListener("click", () => switchDrawerTab("conflicts"));
     }
+  }
+
+  function switchDrawerTab(tab) {
+    activeTab = tab;
+    document.querySelectorAll(".alethex-tab-btn").forEach(btn => btn.classList.remove("active"));
+    const activeBtn = document.getElementById(`tab-btn-${tab}`);
+    if (activeBtn) activeBtn.classList.add("active");
+    updateDrawerUI();
   }
 
   function toggleDrawer() {
@@ -297,24 +605,31 @@
     const drawer = document.getElementById("alethex-drawer");
     if (drawer) {
       drawer.style.display = isDrawerOpen ? "flex" : "none";
-      if (isDrawerOpen) updateDrawerUI();
+      if (isDrawerOpen) {
+        syncTheme();
+        updateDrawerUI();
+      }
     }
   }
 
-  // 3. Fast Turn Scraper with zero document-level thrashing
-  //
-  // Platform-specific selectors are guesses at each site's current DOM structure, which these
-  // sites change often -- if a selector goes stale it silently finds zero turns, and runAudit()
-  // would then no-op with no feedback at all ("Rescan" appearing to do nothing). To avoid that,
-  // always OR in a broad generic fallback alongside the platform-specific selector instead of
-  // only using it as a last resort, and de-duplicate matched nodes by reference.
+  // ==========================================
+  // 4. Safe HTML Escaping
+  // ==========================================
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  // ==========================================
+  // 5. Message Scraper (Non-blocking)
+  // ==========================================
   const GENERIC_SELECTOR = 'article, [class*="message"], [data-message-author-role], [class*="turn"], .prose, p';
 
   function getTurnNodes() {
-    // Scan all turns (both user and AI). False positives from AI text are prevented downstream
-    // by the article-start filter (rejects values starting with "the", "a", "an", "it", etc.)
-    // and the 4-word length cap, which between them block advice/example phrases while passing
-    // real personal facts like "Google", "Python", "London".
     let selector = GENERIC_SELECTOR;
     if (platform === "ChatGPT") selector += ', [data-message-author-role], .whitespace-pre-wrap';
     else if (platform === "Claude.ai") selector += ', .font-claude-message, .font-user-message, div.prose, [data-testid*="message"]';
@@ -340,55 +655,40 @@
     return valid;
   }
 
-  // 4. Client-side Temporal Belief Reconciliation (Fast & Non-blocking)
+  // ==========================================
+  // 6. Factual Reconciliation Logic
+  // ==========================================
   function reconcileTurns(turns) {
     const claims = [];
-    const entitySlots = {}; // slot: "predicate" -> array of claims
+    const entitySlots = {};
     const conflicts = [];
     const superseded = [];
 
-    // Factual statement patterns. Broadened from the original 6 toy patterns (which only matched
-    // phrasing like "alice is"/"bob is" and almost never fired on real ChatGPT/Claude conversations)
-    // to cover how people actually phrase these facts in first person.
-    // NOTE: dash in character classes must be at start/end or escaped as \x2D — never \\- inside
-    // a regex literal (\\- is parsed as a range from backslash char 92 to next char, causing
-    // "range out of order" crashes). All captures use [-a-z0-9 ...] with dash first.
     const SUBJ = "(?:i am|i'm|i|my name is|i'll be|i am now|i'm now)";
     const patterns = [
-      // Employment — must start with subject pronoun immediately, no long gaps
       { regex: new RegExp(`\\b(?:${SUBJ})\\s{1,10}(?:now\\s+)?(?:work(?:ing)?\\s+(?:at|for)|employed (?:at|by)|joined|started (?:at|working at))\\s+([a-z0-9&. -]{2,40})`, "i"), pred: "works_at" },
       { regex: /\bmy (?:company|employer|workplace|office) is\s+([-a-z0-9&. ]{2,40})/i, pred: "works_at" },
-      // Location
       { regex: new RegExp(`\\b(?:${SUBJ})\\s{1,10}(?:now\\s+)?(?:live(?:s|d)?\\s+in|based in|moved to|relocated to|living in|staying in|currently in|reside in|residing in|am from|grew up in)\\s+([-a-z0-9,. ]{2,40})`, "i"), pred: "lives_in" },
       { regex: /\bmy (?:city|town|country|location|home(?:town)?) is\s+([-a-z0-9,. ]{2,40})/i, pred: "lives_in" },
-      // Technology / tools — restricted to short values (tool names are rarely more than 3 words)
       { regex: new RegExp(`\\b(?:${SUBJ})\\s{1,5}(?:now\\s+)?(?:use|uses|using|prefer|prefers|switched to|migrated to)\\s+([-a-z0-9#+. ]{2,30})`, "i"), pred: "uses" },
       { regex: /\bmy (?:main |primary |daily )?(?:language|stack|framework|editor|ide|os|browser|phone|laptop|computer) is\s+([-a-z0-9#+. ]{2,30})/i, pred: "uses" },
-      // Identity
       { regex: /\bmy name is\s+([a-z][-a-z'. ]{1,25})/i, pred: "name" },
       { regex: /\bpeople call me\s+([a-z][-a-z'. ]{1,20})/i, pred: "name" },
       { regex: /\bi(?:'m| am)\s+(\d{1,3})\s*(?:years old|yo|years of age)?\b/i, pred: "age" },
       { regex: /\bmy age is\s+(\d{1,3})\b/i, pred: "age" },
-      // Diet — only closed-vocabulary values to avoid false positives
       { regex: /\b(?:i am|i'm|i've become|i became|i went)\s+(?:a |an )?(vegetarian|vegan|pescatarian|meat eater|omnivore|carnivore|keto|paleo)\b/i, pred: "diet" },
       { regex: /\bi\s+(?:don'?t|do not|no longer)\s+(?:eat meat|eat animal|consume meat)\b/i, pred: "diet", forcedValue: "vegetarian" },
       { regex: /\bi\s+(?:eat meat|am back to eating meat)\b/i, pred: "diet", forcedValue: "omnivore" },
-      // Preferences — short objects only (2+ chars, max 4 words)
       { regex: /\bi\s+(?:like|love|enjoy|adore|am a fan of)\s+([-a-z0-9 ]{2,25})/i, pred: "likes" },
       { regex: /\bi\s+(?:dislike|hate|despise|don'?t like|do not like|can'?t stand|no longer like)\s+([-a-z0-9 ]{2,25})/i, pred: "dislikes" },
-      // Role / job title — closed list of role suffixes to avoid matching arbitrary sentences
       { regex: /\bmy (?:job|role|title|position|profession|occupation) is\s+(?:a |an )?([-a-z0-9 ]{2,30})/i, pred: "role" },
       { regex: /\bi work as (?:a |an )?([-a-z0-9 ]{2,25})/i, pred: "role" },
       { regex: /\bi(?:'m| am) (?:a |an )?([-a-z0-9 ]{2,30}(?:developer|engineer|designer|manager|analyst|scientist|researcher|student|teacher|writer|founder|cto|ceo|coo|cfo))\b/i, pred: "role" },
-      // Relationship status — closed vocabulary only
       { regex: /\bi(?:'m| am)\s+(single|married|engaged|divorced|in a relationship)\b/i, pred: "relationship" },
-      // Language spoken
       { regex: /\bmy (?:native |first |primary )?language is\s+([-a-z ]{2,20})/i, pred: "language" },
       { regex: /\bi(?:'m| am) (?:a )?(?:native |fluent )?([a-z]{3,15}) speaker\b/i, pred: "language" },
     ];
 
-    // Trailing-clause words that shouldn't be part of an extracted value (keeps "Google" and
-    // "Google as a backend engineer" comparable instead of treated as unrelated strings).
     const TRIM_AT = /\b(?:and|but|so|because|which|who|that|while|although|as a|as an)\b.*$/i;
 
     function normalizeValue(raw) {
@@ -397,8 +697,6 @@
       return v.toLowerCase();
     }
 
-    // Loose equality: exact match, or one normalized value contains the other (handles
-    // "google" vs "google cloud" style partial overlaps instead of false mismatches).
     function valuesMatch(a, b) {
       if (!a || !b) return false;
       if (a === b) return true;
@@ -427,12 +725,9 @@
           if (match) {
             const rawVal = pat.forcedValue || match[1] || "";
             const val = normalizeValue(rawVal);
-            if (!val) return;
-            // Reject sentence fragments: more than 4 words → almost certainly not a named value.
-            if (val.split(/\s+/).length > 4) return;
-            // Reject values starting with articles/pronouns — real fact values (tool names,
-            // places, companies) never start with "the", "a", "an", "it", "this", "that".
+            if (!val || val.split(/\s+/).length > 4) return;
             if (/^(?:the|a|an|it|its|this|that|these|those|my|your|our|their)\b/i.test(val)) return;
+
             const date = extractDate(sent, now);
             const claim = {
               turnIdx: idx,
@@ -452,15 +747,8 @@
       });
     });
 
-    // Opposing-predicate pairs: holding both simultaneously is a direct contradiction
-    // regardless of when each was said (e.g. "I like pizza" vs "I dislike pizza").
     const OPPOSITES = { likes: "dislikes", dislikes: "likes" };
 
-    // Check temporal ordering per predicate.
-    // Two claims with different values for the same predicate:
-    //   - Different turns: later one supersedes the earlier one (user updated their info).
-    //   - Same turn: direct contradiction in one message.
-    // Opposite-predicate pairs (likes/dislikes) are always conflicts regardless of turn order.
     Object.keys(entitySlots).forEach((pred) => {
       const slotClaims = entitySlots[pred];
       slotClaims.sort((a, b) => a.turnIdx - b.turnIdx);
@@ -475,7 +763,7 @@
             c1.end = c2.start;
             if (!superseded.includes(c1)) superseded.push(c1);
           } else {
-            conflicts.push({ claimA: c1, claimB: c2, reason: `Contradicting '${c1.value}' vs '${c2.value}'` });
+            conflicts.push({ claimA: c1, claimB: c2, reason: `Contradiction: '${c1.value}' vs '${c2.value}'` });
           }
         }
       }
@@ -485,7 +773,7 @@
         slotClaims.forEach((c1) => {
           entitySlots[oppositePred].forEach((c2) => {
             if (valuesMatch(c1.value, c2.value)) {
-              conflicts.push({ claimA: c1, claimB: c2, reason: `Opposing feelings about '${c1.value}'` });
+              conflicts.push({ claimA: c1, claimB: c2, reason: `Opposing values for '${c1.value}'` });
             }
           });
         });
@@ -493,8 +781,6 @@
     });
 
     const active = claims.filter((c) => !superseded.includes(c));
-    // CI: conflicts are hard inconsistencies (weight 1.0), superseded are soft (weight 0.5 — user updated their info).
-    // Returns null when no claims were found at all (conversation has no detectable factual statements).
     const totalClaims = Math.max(1, claims.length);
     const issueScore = conflicts.length + superseded.length * 0.5;
     const ci = claims.length === 0 ? null : Math.max(0, 1.0 - issueScore / totalClaims);
@@ -502,7 +788,9 @@
     return { active, superseded, conflicts, ci };
   }
 
-  // 5. Update UI Components without full re-render
+  // ==========================================
+  // 7. Update HUD UI
+  // ==========================================
   function updateHUD() {
     const dot = document.getElementById("alethex-dot");
     const status = document.getElementById("alethex-hud-status");
@@ -510,118 +798,263 @@
 
     if (currentConflicts.length > 0) {
       dot.className = "alethex-dot red";
-      status.innerText = `${currentConflicts.length} Conflict${currentConflicts.length > 1 ? "s" : ""} Detected`;
+      status.innerText = `${currentConflicts.length} Conflict${currentConflicts.length > 1 ? "s" : ""}`;
     } else if (currentSuperseded.length > 0) {
       dot.className = "alethex-dot amber";
-      status.innerText = `${currentSuperseded.length} Fact${currentSuperseded.length > 1 ? "s" : ""} Updated`;
+      status.innerText = `${currentSuperseded.length} Updated`;
     } else if (currentCI === null) {
-      dot.className = "alethex-dot";
-      status.innerText = "No Facts Found — Scan Chat";
+      dot.className = "alethex-dot gray";
+      status.innerText = "Guarding";
     } else {
       dot.className = "alethex-dot";
-      status.innerText = "Consistent ✓";
+      status.innerText = `${currentBeliefs.length} Fact${currentBeliefs.length === 1 ? "" : "s"} Verified`;
     }
+
+    const countFactsEl = document.getElementById("tab-count-facts");
+    if (countFactsEl) countFactsEl.innerText = currentBeliefs.length;
+
+    const countConflictsEl = document.getElementById("tab-count-conflicts");
+    if (countConflictsEl) countConflictsEl.innerText = currentConflicts.length + currentSuperseded.length;
   }
 
-  // Claim text (predicate/value/raw sentence) originates from the chat page's own content,
-  // which is untrusted -- a message literally containing HTML-like text must not be able to
-  // inject markup into our drawer when interpolated into innerHTML below.
-  function escapeHtml(str) {
-    return String(str)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#39;");
-  }
+  // ==========================================
+  // 8. Update Drawer UI (Multi-Tab Architecture)
+  // ==========================================
+  let lastAuditNotice = null;
 
   function updateDrawerUI() {
     const body = document.getElementById("alethex-drawer-body");
     if (!body) return;
 
-    let badgeClass = "green";
-    let badgeText = currentCI === null ? "No Facts Yet" : `Healthy (${currentCI.toFixed(2)})`;
-    if (currentCI === null) badgeClass = "amber";
-    if (currentConflicts.length > 0) {
-      badgeClass = "red";
-      badgeText = `Conflict (${currentCI !== null ? currentCI.toFixed(2) : "?"})`;
-    } else if (currentSuperseded.length > 0) {
-      badgeClass = "amber";
-      badgeText = `Updated Facts (${currentCI !== null ? currentCI.toFixed(2) : "?"})`;
+    let contentHtml = "";
+
+    // ------------------------------------------
+    // TAB: OVERVIEW
+    // ------------------------------------------
+    if (activeTab === "overview") {
+      let badgeClass = "green";
+      let badgeText = currentCI === null ? "No Claims Yet" : `Healthy (${Math.round((currentCI || 1) * 100)}%)`;
+      if (currentCI === null) badgeClass = "amber";
+      if (currentConflicts.length > 0) {
+        badgeClass = "red";
+        badgeText = `Conflict (${Math.round(currentCI * 100)}%)`;
+      } else if (currentSuperseded.length > 0) {
+        badgeClass = "amber";
+        badgeText = `Updated (${Math.round(currentCI * 100)}%)`;
+      }
+
+      const ciScoreVal = currentCI === null ? 100 : Math.round(currentCI * 100);
+
+      contentHtml = `
+        ${lastAuditNotice ? `<div class="alethex-card" style="color:var(--al-amber-text);">${lastAuditNotice}</div>` : ""}
+
+        <!-- Consistency Gauge -->
+        <div class="alethex-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-size:11px; font-weight:600; color:var(--al-text-secondary); text-transform:uppercase; letter-spacing:0.3px;">Memory Coherence</span>
+            <span class="alethex-badge ${badgeClass}">${badgeText}</span>
+          </div>
+          <div style="height:6px; background:var(--al-bg-surface-elevated); border-radius:999px; overflow:hidden; margin-bottom:8px;">
+            <div style="height:100%; width:${ciScoreVal}%; background:var(--al-${badgeClass === 'green' ? 'green' : (badgeClass === 'amber' ? 'amber' : 'red')}); border-radius:999px;"></div>
+          </div>
+          <div style="font-size:11px; color:var(--al-text-secondary); line-height:1.4;">
+            Autonomous neuro-symbolic verification active. Conflicting and superseded statements are continuously audited.
+          </div>
+        </div>
+
+        <!-- Metric Summary -->
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
+          <div class="alethex-card" style="text-align:center; padding:8px 4px;">
+            <div style="font-size:16px; font-weight:700; font-family:var(--font-mono); color:var(--al-text-primary);">${currentBeliefs.length}</div>
+            <div style="font-size:10px; color:var(--al-text-secondary); margin-top:2px;">Active Facts</div>
+          </div>
+          <div class="alethex-card" style="text-align:center; padding:8px 4px;">
+            <div style="font-size:16px; font-weight:700; font-family:var(--font-mono); color:${currentSuperseded.length > 0 ? 'var(--al-amber-text)' : 'var(--al-text-primary)'};">${currentSuperseded.length}</div>
+            <div style="font-size:10px; color:var(--al-text-secondary); margin-top:2px;">Superseded</div>
+          </div>
+          <div class="alethex-card" style="text-align:center; padding:8px 4px;">
+            <div style="font-size:16px; font-weight:700; font-family:var(--font-mono); color:${currentConflicts.length > 0 ? 'var(--al-red-text)' : 'var(--al-green-text)'};">${currentConflicts.length}</div>
+            <div style="font-size:10px; color:var(--al-text-secondary); margin-top:2px;">Conflicts</div>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <button id="alethex-rescan-btn" class="alethex-action-btn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+          <span>Run Live Audit</span>
+        </button>
+
+        <button id="alethex-toggle-hl-btn" class="alethex-sub-btn">
+          <span>${isHighlightingEnabled ? "Hide In-Chat Ribbons" : "Show In-Chat Ribbons"}</span>
+        </button>
+      `;
     }
 
-    const activeList = currentBeliefs.length > 0
-      ? currentBeliefs.map(b => `<div style="padding:4px 0; border-bottom:1px solid #1e293b;"><strong style="color:#38bdf8;">${escapeHtml(b.predicate)}:</strong> ${escapeHtml(b.value)}</div>`).join("")
-      : "<div style='color:#64748b;'>No structured facts in conversation yet.</div>";
+    // ------------------------------------------
+    // TAB: FACTS (Active Beliefs Frontier)
+    // ------------------------------------------
+    else if (activeTab === "facts") {
+      let filtered = currentBeliefs;
+      if (factSearchQuery.trim()) {
+        const q = factSearchQuery.toLowerCase();
+        filtered = currentBeliefs.filter(b => b.predicate.toLowerCase().includes(q) || b.value.toLowerCase().includes(q) || b.raw.toLowerCase().includes(q));
+      }
 
-    const conflictList = currentConflicts.length > 0
-      ? currentConflicts.map(c => `
-          <div style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); padding:8px; border-radius:6px; margin-bottom:6px;">
-            <div style="color:#f87171; font-weight:700;">⚠️ ${escapeHtml(c.reason)}</div>
-            <div style="font-size:11px; color:#cbd5e1; margin-top:2px;">"${escapeHtml(c.claimA.raw)}" vs "${escapeHtml(c.claimB.raw)}"</div>
-          </div>
-        `).join("")
-      : "<div style='color:#34d399;'>✓ Zero logical or temporal contradictions.</div>";
+      const factItemsHtml = filtered.length > 0
+        ? filtered.map((b) => `
+            <div class="alethex-card" style="display:flex; flex-direction:column; gap:4px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="alethex-badge green">${escapeHtml(b.predicate.replace('_', ' '))}</span>
+                <span style="font-size:10px; color:var(--al-text-tertiary); font-family:var(--font-mono);">Turn ${b.turnIdx + 1}</span>
+              </div>
+              <div style="font-size:13px; font-weight:600; color:var(--al-text-primary); margin-top:2px;">${escapeHtml(b.value)}</div>
+              <div style="font-size:10px; color:var(--al-text-secondary); font-style:italic;">&ldquo;${escapeHtml(b.raw)}&rdquo;</div>
+            </div>
+          `).join("")
+        : `<div style="text-align:center; padding:24px 12px; color:var(--al-text-tertiary);">
+            <div style="margin-bottom:6px; font-size:18px;">📋</div>
+            <div style="font-weight:500;">No matching facts found.</div>
+            <div style="font-size:10px; margin-top:2px;">Factual assertions in the conversation appear here automatically.</div>
+           </div>`;
 
-    const noticeHtml = lastAuditNotice
-      ? `<div class="alethex-card" style="color:#fbbf24;">${lastAuditNotice}</div>`
-      : "";
+      contentHtml = `
+        <div class="alethex-search-box">
+          <svg class="alethex-search-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="alethex-fact-search" class="alethex-search-input" placeholder="Search verified facts..." value="${escapeHtml(factSearchQuery)}" />
+        </div>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          ${factItemsHtml}
+        </div>
+        ${currentBeliefs.length > 0 ? `<button id="alethex-copy-facts-btn" class="alethex-sub-btn">Copy Facts JSON</button>` : ""}
+      `;
+    }
+
+    // ------------------------------------------
+    // TAB: CONFLICTS (Contradiction & Supersession)
+    // ------------------------------------------
+    else if (activeTab === "conflicts") {
+      const allIssues = [];
+      currentConflicts.forEach(c => allIssues.push({ type: "conflict", data: c }));
+      currentSuperseded.forEach(s => allIssues.push({ type: "superseded", data: s }));
+
+      const issuesHtml = allIssues.length > 0
+        ? allIssues.map((item) => {
+            if (item.type === "conflict") {
+              const c = item.data;
+              return `
+                <div class="alethex-card" style="border-left:3.5px solid var(--al-red);">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                    <span class="alethex-badge red">Contradiction</span>
+                    <button class="alethex-tool-btn" data-jump-turn="${c.claimB ? c.claimB.turnIdx : 0}" title="Scroll to Turn" style="width:20px; height:20px; font-size:9px;">↗</button>
+                  </div>
+                  <div style="font-weight:600; color:var(--al-red-text); font-size:11px; margin-bottom:4px;">${escapeHtml(c.reason)}</div>
+                  <div style="font-size:11px; color:var(--al-text-secondary); background:var(--al-bg-surface-elevated); padding:6px 8px; border-radius:4px; margin-bottom:4px;">
+                    &ldquo;${escapeHtml(c.claimA.raw)}&rdquo; <br>
+                    <span style="color:var(--al-red-text); font-weight:600;">vs</span> <br>
+                    &ldquo;${escapeHtml(c.claimB.raw)}&rdquo;
+                  </div>
+                </div>
+              `;
+            } else {
+              const s = item.data;
+              return `
+                <div class="alethex-card" style="border-left:3.5px solid var(--al-amber);">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                    <span class="alethex-badge amber">Superseded</span>
+                    <button class="alethex-tool-btn" data-jump-turn="${s.turnIdx}" title="Scroll to Turn" style="width:20px; height:20px; font-size:9px;">↗</button>
+                  </div>
+                  <div style="font-size:11px; color:var(--al-text-primary); margin-bottom:2px;">
+                    <span style="color:var(--al-text-tertiary); text-decoration:line-through;">${escapeHtml(s.predicate)}: ${escapeHtml(s.value)}</span>
+                  </div>
+                  <div style="font-size:10px; color:var(--al-text-secondary); font-style:italic;">
+                    Updated in subsequent turn.
+                  </div>
+                </div>
+              `;
+            }
+          }).join("")
+        : `<div style="text-align:center; padding:28px 12px; color:var(--al-text-secondary);">
+            <div style="font-size:20px; color:var(--al-green-text); margin-bottom:6px;">✓</div>
+            <div style="font-weight:600; color:var(--al-text-primary);">Zero Contradictions Found</div>
+            <div style="font-size:11px; color:var(--al-text-tertiary); margin-top:2px;">All extracted assertions across chat turns remain logically consistent.</div>
+           </div>`;
+
+      contentHtml = `
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          ${issuesHtml}
+        </div>
+      `;
+    }
+
+    body.innerHTML = contentHtml;
     lastAuditNotice = null;
 
-    body.innerHTML = `
-      ${noticeHtml}
-      <div class="alethex-card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-          <span style="font-size:11px; font-weight:600; color:#94a3b8; text-transform:uppercase;">Consistency Score</span>
-          <span class="alethex-badge ${badgeClass}">${badgeText}</span>
-        </div>
-        <div style="font-size:11px; color:#94a3b8;">Continuous real-time verification prevents persistent memory corruption.</div>
-      </div>
+    // Attach dynamic listeners
+    const rescanBtn = body.querySelector("#alethex-rescan-btn");
+    if (rescanBtn) {
+      rescanBtn.addEventListener("click", () => {
+        rescanBtn.innerText = "Scanning...";
+        setTimeout(() => runAudit(true), 50);
+      });
+    }
 
-      <div class="alethex-card">
-        <div style="font-size:11px; font-weight:600; color:#94a3b8; text-transform:uppercase; margin-bottom:6px;">Active Beliefs Frontier</div>
-        <div>${activeList}</div>
-      </div>
+    const toggleHlBtn = body.querySelector("#alethex-toggle-hl-btn");
+    if (toggleHlBtn) {
+      toggleHlBtn.addEventListener("click", () => {
+        isHighlightingEnabled = !isHighlightingEnabled;
+        applyHighlights();
+        updateDrawerUI();
+        try {
+          chrome.storage.local.set({ highlightConflicts: isHighlightingEnabled });
+        } catch (e) {}
+      });
+    }
 
-      <div class="alethex-card">
-        <div style="font-size:11px; font-weight:600; color:#94a3b8; text-transform:uppercase; margin-bottom:6px;">Contradiction Report</div>
-        <div>${conflictList}</div>
-      </div>
+    const searchInput = body.querySelector("#alethex-fact-search");
+    if (searchInput) {
+      searchInput.addEventListener("input", (e) => {
+        factSearchQuery = e.target.value;
+        updateDrawerUI();
+        // Restore focus to input after re-render
+        const reInput = document.getElementById("alethex-fact-search");
+        if (reInput) {
+          reInput.focus();
+          reInput.setSelectionRange(reInput.value.length, reInput.value.length);
+        }
+      });
+    }
 
-      <button id="alethex-audit-now-btn" class="alethex-btn">Audit Active Conversation</button>
-      <button id="alethex-toggle-hl-btn" class="alethex-btn-sub">${isHighlightingEnabled ? "Hide In-Chat Highlights" : "Highlight Conflicts in Chat"}</button>
-    `;
+    const copyBtn = body.querySelector("#alethex-copy-facts-btn");
+    if (copyBtn) {
+      copyBtn.addEventListener("click", () => {
+        const json = JSON.stringify(currentBeliefs.map(b => ({ predicate: b.predicate, value: b.value, source: b.raw })), null, 2);
+        navigator.clipboard.writeText(json).then(() => {
+          copyBtn.innerText = "Copied to Clipboard!";
+          setTimeout(() => { copyBtn.innerText = "Copy Facts JSON"; }, 1500);
+        });
+      });
+    }
 
-    body.querySelector("#alethex-audit-now-btn").addEventListener("click", (e) => {
-      // Give immediate visible feedback on click so the button never *looks* like it did
-      // nothing, even in the rare case where the audit finds no changes.
-      const btn = e.currentTarget;
-      btn.innerText = "Scanning...";
-      btn.disabled = true;
-      setTimeout(() => runAudit(true), 50);
-    });
-    body.querySelector("#alethex-toggle-hl-btn").addEventListener("click", () => {
-      isHighlightingEnabled = !isHighlightingEnabled;
-      applyHighlights();
-      updateDrawerUI();
-      // Keep the popup's switch (which reads chrome.storage) in sync with this in-page toggle.
-      try {
-        chrome.storage.local.set({ highlightConflicts: isHighlightingEnabled });
-      } catch (e) {
-        // chrome.storage unavailable; in-page state still updated above.
-      }
+    // Scroll to turn click handlers
+    body.querySelectorAll("[data-jump-turn]").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        const turnIdx = parseInt(e.currentTarget.getAttribute("data-jump-turn"));
+        const turns = getTurnNodes();
+        if (turns[turnIdx] && turns[turnIdx].node) {
+          turns[turnIdx].node.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      });
     });
   }
 
+  // ==========================================
+  // 9. In-Chat Highlighting (Refined Left-Accent)
+  // ==========================================
   function applyHighlights() {
     document.querySelectorAll(".alethex-highlight").forEach(el => el.classList.remove("alethex-highlight"));
     document.querySelectorAll(".alethex-highlight-amber").forEach(el => el.classList.remove("alethex-highlight-amber"));
     if (!isHighlightingEnabled) return;
 
-    // Previously only conflicts were ever outlined, but most real differences get classified as
-    // "superseded" (a fact that changed over time) rather than "conflict" (held at the same time) --
-    // see reconcileTurns()'s temporal-ordering logic. That meant the toggle usually had nothing to
-    // hide/show and looked broken. Now both are highlighted (red = conflict, amber = superseded).
     currentConflicts.forEach(conf => {
       if (conf.claimA && conf.claimA.node) conf.claimA.node.classList.add("alethex-highlight");
       if (conf.claimB && conf.claimB.node) conf.claimB.node.classList.add("alethex-highlight");
@@ -631,18 +1064,16 @@
     });
   }
 
-  // 6. Semantic NLI Pass (runs in background after regex pass)
-  // Extracts first-person sentences from all turns and runs cross-turn NLI inference.
-  // Only sentences that start with "I " or "My " are candidates — this avoids processing
-  // AI-generated prose while still catching user's self-description across turns.
+  // ==========================================
+  // 10. Semantic NLI Worker Integration
+  // ==========================================
   async function runSemanticNLI(turns) {
-    if (!nliWorker) return; // Worker not initialized or unavailable
+    if (!nliWorker) return;
 
     const FIRST_PERSON = /^(?:i |my |i'm |i've |i am |i was |i will |i do |i don't |i work|i live|i use)/i;
     const MIN_LEN = 15;
     const MAX_LEN = 200;
 
-    // Collect first-person sentences per turn
     const sentencesByTurn = turns.map((turn, idx) => {
       const sents = turn.text.split(/(?<=[.!?])\s+/).filter(s =>
         s.length >= MIN_LEN && s.length <= MAX_LEN && FIRST_PERSON.test(s.trim())
@@ -650,15 +1081,13 @@
       return { turnIdx: idx, node: turn.node, sents };
     }).filter(t => t.sents.length > 0);
 
-    if (sentencesByTurn.length < 2) return; // Need at least 2 turns with first-person text
+    if (sentencesByTurn.length < 2) return;
 
-    // Build cross-turn pairs: all sentences from turn i vs all sentences from turn j (j > i)
     const pairs = [];
     for (let i = 0; i < sentencesByTurn.length; i++) {
       for (let j = i + 1; j < sentencesByTurn.length; j++) {
         for (const s1 of sentencesByTurn[i].sents) {
           for (const s2 of sentencesByTurn[j].sents) {
-            // Skip pairs that are almost identical
             if (s1.slice(0, 30) === s2.slice(0, 30)) continue;
             pairs.push({
               premise: s1,
@@ -674,19 +1103,15 @@
     }
 
     if (pairs.length === 0) return;
-    // Cap at 50 pairs to avoid very long inference times on long conversations
     const sample = pairs.length > 50 ? pairs.sort(() => Math.random() - 0.5).slice(0, 50) : pairs;
-
     const nliConflicts = await nliInfer(sample, 0.65);
 
     if (nliConflicts.length > 0) {
-      // Merge NLI conflicts into current results, deduplicating against regex-found conflicts
       const existingRaws = new Set(currentConflicts.map(c => c.claimA.raw + c.claimB.raw));
       const newConflicts = nliConflicts.filter(c => !existingRaws.has(c.claimA.raw + c.claimB.raw));
 
       if (newConflicts.length > 0) {
         currentConflicts = [...currentConflicts, ...newConflicts];
-        // Recompute CI
         const totalClaims = Math.max(1, currentBeliefs.length + currentSuperseded.length + currentConflicts.length);
         const issueScore = currentConflicts.length + currentSuperseded.length * 0.5;
         currentCI = Math.max(0, 1.0 - issueScore / totalClaims);
@@ -697,17 +1122,13 @@
     }
   }
 
-  // 7. Master Non-Blocking Audit
-  let lastAuditNotice = null;
-
+  // ==========================================
+  // 11. Master Audit Loop
+  // ==========================================
   function runAudit(manual = false) {
     const turns = getTurnNodes();
     if (turns.length === 0) {
-      // Previously silently returned here with zero UI feedback, so a manual "Rescan" click
-      // looked completely broken whenever selectors failed to match the page's current DOM.
-      // Route through updateDrawerUI() (instead of a one-off DOM patch) so the Scanning...
-      // button state set by the click handler always gets reset.
-      lastAuditNotice = "No conversation text detected on this page yet. Try scrolling the chat into view, then Rescan again.";
+      lastAuditNotice = "No conversation text detected on this page yet. Try scrolling the chat into view and click Run Live Audit.";
       if (manual && isDrawerOpen) updateDrawerUI();
       return;
     }
@@ -720,13 +1141,8 @@
 
     updateHUD();
     applyHighlights();
-
-    // Semantic NLI pass — runs in background, updates UI when done.
-    // Extract first-person sentences from all turns, build candidate pairs
-    // across different turns, and run them through the NLI model.
     runSemanticNLI(turns);
 
-    // Update background extension storage stats
     try {
       chrome.runtime.sendMessage({
         action: "update_stats",
@@ -734,19 +1150,18 @@
         conflicts: currentConflicts.length,
         activeBeliefs: currentBeliefs.length
       });
-    } catch (e) {
-      // Ignored if background is dormant
-    }
+    } catch (e) {}
 
     if (manual && isDrawerOpen) {
       updateDrawerUI();
     }
   }
 
-  // 7. Controlled, Non-Recursive Observer
+  // ==========================================
+  // 12. Mutation Observer & Theme Watcher
+  // ==========================================
   let auditDebounce = null;
   const observer = new MutationObserver((mutations) => {
-    // IGNORE mutations that originate inside our own HUD/Drawer!
     const external = mutations.some(m => !m.target.closest || !m.target.closest("#alethex-root"));
     if (!external) return;
 
@@ -754,46 +1169,66 @@
     if (currentTurns.length !== lastMessageCount) {
       lastMessageCount = currentTurns.length;
       clearTimeout(auditDebounce);
-      // Wait for streaming text to settle before running audit
       auditDebounce = setTimeout(() => {
         runAudit(false);
       }, 2500);
     }
   });
 
-  // 8. Message Listener for Popup communication
+  // Watch for host theme switches (e.g., ChatGPT or Claude class toggle)
+  const themeObserver = new MutationObserver(() => {
+    syncTheme();
+  });
+
+  // ==========================================
+  // 13. Chrome Runtime Message Listener
+  // ==========================================
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "audit_now") {
       runAudit(true);
       if (!isDrawerOpen) toggleDrawer();
       sendResponse({ ok: true });
+    } else if (request.action === "open_drawer") {
+      if (!isDrawerOpen) toggleDrawer();
+      sendResponse({ ok: true });
     } else if (request.action === "toggle_highlights") {
-      // Previously unhandled: the popup's "Highlight Drift in Chat" switch sent this
-      // message but nothing here listened for it, so the switch silently did nothing.
       isHighlightingEnabled = !!request.enabled;
       applyHighlights();
       if (isDrawerOpen) updateDrawerUI();
       sendResponse({ ok: true });
+    } else if (request.action === "set_theme") {
+      userThemeSetting = request.theme || "auto";
+      syncTheme();
+      sendResponse({ ok: true });
     }
   });
 
+  // Listen for OS media query changes
+  if (window.matchMedia) {
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+      syncTheme();
+    });
+  }
+
   // Boot after document idle
   setTimeout(() => {
-    // Respect the popup's persisted preference instead of always defaulting to enabled.
     try {
-      chrome.storage.local.get(["highlightConflicts"], (res) => {
+      chrome.storage.local.get(["highlightConflicts", "userTheme"], (res) => {
         if (res.highlightConflicts !== undefined) isHighlightingEnabled = res.highlightConflicts;
+        if (res.userTheme) userThemeSetting = res.userTheme;
+        syncTheme();
       });
-    } catch (e) {
-      // chrome.storage unavailable (e.g. extension context invalidated); keep default.
-    }
+    } catch (e) {}
 
     initDOM();
-    initNLIWorker(); // Start model preload immediately so first audit doesn't stall
+    syncTheme();
+    initNLIWorker();
     const turns = getTurnNodes();
     lastMessageCount = turns.length;
     runAudit(false);
+
     observer.observe(document.body, { childList: true, subtree: true });
-  }, 1200);
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "data-theme", "data-color-mode"] });
+  }, 1000);
 
 })();
