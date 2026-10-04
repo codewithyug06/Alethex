@@ -38,6 +38,12 @@
     "http://localhost:*/*",
     "http://127.0.0.1:*/*"
   ],
+  "web_accessible_resources": [
+    {
+      "resources": ["nli_worker.js", "vendor/transformers.min.js"],
+      "matches": ["<all_urls>"]
+    }
+  ],
   "content_scripts": [
     {
       "matches": [

@@ -21,8 +21,7 @@
   },
   "permissions": [
     "storage",
-    "activeTab",
-    "scripting"
+    "activeTab"
   ],
   "host_permissions": [
     "https://chatgpt.com/*",
@@ -39,6 +38,12 @@
     "http://localhost:*/*",
     "http://127.0.0.1:*/*"
   ],
+  "web_accessible_resources": [
+    {
+      "resources": ["nli_worker.js", "vendor/transformers.min.js"],
+      "matches": ["<all_urls>"]
+    }
+  ],
   "content_scripts": [
     {
       "matches": [
@@ -52,9 +57,7 @@
         "https://poe.com/*",
         "https://chat.mistral.ai/*",
         "https://huggingface.co/chat/*",
-        "https://x.com/i/grok/*",
-        "http://localhost:*/*",
-        "http://127.0.0.1:*/*"
+        "https://x.com/i/grok/*"
       ],
       "js": ["content.js"],
       "run_at": "document_idle"
