@@ -34,6 +34,205 @@
   let activeTab = "overview"; // "overview" | "facts" | "conflicts"
   let factSearchQuery = "";
   let userThemeSetting = "auto"; // "auto" | "light" | "dark"
+  let soundEnabled = true;
+  let previousBeliefCount = 0;
+  let previousConflictCount = 0;
+
+  // ==========================================
+  // Web Audio Synthesis Engine for ALETHEX
+  // ==========================================
+  class AlethexAudioEngine {
+    constructor() {
+      this.ctx = null;
+      this.enabled = true;
+      this.lastPlayTime = 0;
+      this.minInterval = 350;
+    }
+
+    init() {
+      if (!this.ctx && typeof window !== "undefined") {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+          try {
+            this.ctx = new AudioCtx();
+          } catch (e) {}
+        }
+      }
+    }
+
+    ensureContext() {
+      this.init();
+      if (this.ctx && this.ctx.state === "suspended") {
+        this.ctx.resume().catch(() => {});
+      }
+    }
+
+    playVerify() {
+      if (!this.enabled) return;
+      const now = Date.now();
+      if (now - this.lastPlayTime < this.minInterval) return;
+      this.lastPlayTime = now;
+
+      this.ensureContext();
+      if (!this.ctx) return;
+
+      try {
+        const t = this.ctx.currentTime;
+        const osc1 = this.ctx.createOscillator();
+        const osc2 = this.ctx.createOscillator();
+        const gain1 = this.ctx.createGain();
+        const gain2 = this.ctx.createGain();
+        const filter = this.ctx.createBiquadFilter();
+
+        filter.type = "lowpass";
+        filter.frequency.setValueAtTime(2600, t);
+
+        osc1.type = "sine";
+        osc1.frequency.setValueAtTime(587.33, t);
+
+        osc2.type = "sine";
+        osc2.frequency.setValueAtTime(880.00, t + 0.04);
+
+        gain1.gain.setValueAtTime(0.0001, t);
+        gain1.gain.exponentialRampToValueAtTime(0.08, t + 0.01);
+        gain1.gain.exponentialRampToValueAtTime(0.0001, t + 0.24);
+
+        gain2.gain.setValueAtTime(0.0001, t);
+        gain2.gain.setValueAtTime(0.0001, t + 0.04);
+        gain2.gain.exponentialRampToValueAtTime(0.09, t + 0.055);
+        gain2.gain.exponentialRampToValueAtTime(0.0001, t + 0.32);
+
+        osc1.connect(gain1);
+        osc2.connect(gain2);
+        gain1.connect(filter);
+        gain2.connect(filter);
+        filter.connect(this.ctx.destination);
+
+        osc1.start(t);
+        osc2.start(t + 0.04);
+        osc1.stop(t + 0.25);
+        osc2.stop(t + 0.33);
+      } catch (e) {}
+    }
+
+    playConflict() {
+      if (!this.enabled) return;
+      const now = Date.now();
+      if (now - this.lastPlayTime < this.minInterval) return;
+      this.lastPlayTime = now;
+
+      this.ensureContext();
+      if (!this.ctx) return;
+
+      try {
+        const t = this.ctx.currentTime;
+        const osc1 = this.ctx.createOscillator();
+        const osc2 = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const filter = this.ctx.createBiquadFilter();
+
+        filter.type = "lowpass";
+        filter.frequency.setValueAtTime(1400, t);
+
+        osc1.type = "triangle";
+        osc1.frequency.setValueAtTime(520, t);
+        osc1.frequency.exponentialRampToValueAtTime(390, t + 0.28);
+
+        osc2.type = "sine";
+        osc2.frequency.setValueAtTime(488, t);
+        osc2.frequency.exponentialRampToValueAtTime(366, t + 0.28);
+
+        gain.gain.setValueAtTime(0.0001, t);
+        gain.gain.exponentialRampToValueAtTime(0.09, t + 0.012);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.30);
+
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(filter);
+        filter.connect(this.ctx.destination);
+
+        osc1.start(t);
+        osc2.start(t);
+        osc1.stop(t + 0.31);
+        osc2.stop(t + 0.31);
+      } catch (e) {}
+    }
+
+    playAudit() {
+      if (!this.enabled) return;
+      this.ensureContext();
+      if (!this.ctx) return;
+
+      try {
+        const t = this.ctx.currentTime;
+        const oscSweep = this.ctx.createOscillator();
+        const gainSweep = this.ctx.createGain();
+
+        oscSweep.type = "sine";
+        oscSweep.frequency.setValueAtTime(260, t);
+        oscSweep.frequency.exponentialRampToValueAtTime(740, t + 0.18);
+
+        gainSweep.gain.setValueAtTime(0.0001, t);
+        gainSweep.gain.exponentialRampToValueAtTime(0.07, t + 0.02);
+        gainSweep.gain.exponentialRampToValueAtTime(0.0001, t + 0.19);
+
+        const oscPing = this.ctx.createOscillator();
+        const gainPing = this.ctx.createGain();
+
+        oscPing.type = "sine";
+        oscPing.frequency.setValueAtTime(880, t + 0.18);
+
+        gainPing.gain.setValueAtTime(0.0001, t);
+        gainPing.gain.setValueAtTime(0.0001, t + 0.17);
+        gainPing.gain.exponentialRampToValueAtTime(0.08, t + 0.19);
+        gainPing.gain.exponentialRampToValueAtTime(0.0001, t + 0.38);
+
+        oscSweep.connect(gainSweep);
+        gainSweep.connect(this.ctx.destination);
+        oscPing.connect(gainPing);
+        gainPing.connect(this.ctx.destination);
+
+        oscSweep.start(t);
+        oscSweep.stop(t + 0.20);
+        oscPing.start(t + 0.18);
+        oscPing.stop(t + 0.40);
+      } catch (e) {}
+    }
+
+    playClick() {
+      if (!this.enabled) return;
+      this.ensureContext();
+      if (!this.ctx) return;
+
+      try {
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(1200, t);
+        gain.gain.setValueAtTime(0.0001, t);
+        gain.gain.exponentialRampToValueAtTime(0.04, t + 0.002);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.025);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(t);
+        osc.stop(t + 0.03);
+      } catch (e) {}
+    }
+  }
+
+  const soundEngine = new AlethexAudioEngine();
+
+  // Passive unlock on first user gesture
+  const unlockAudio = () => {
+    soundEngine.ensureContext();
+    window.removeEventListener("pointerdown", unlockAudio);
+    window.removeEventListener("keydown", unlockAudio);
+  };
+  window.addEventListener("pointerdown", unlockAudio, { passive: true });
+  window.addEventListener("keydown", unlockAudio, { passive: true });
 
   // NLI Worker — Transformers.js model running in a Web Worker (non-blocking)
   let nliWorker = null;
@@ -522,11 +721,8 @@
         <div id="alethex-drawer">
           <div class="alethex-drawer-header">
             <div class="alethex-brand-lockup">
-              <div class="alethex-brand-badge">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                  <path d="m9 12 2 2 4-4"/>
-                </svg>
+              <div class="alethex-brand-badge" style="overflow:hidden; display:flex; align-items:center; justify-content:center; padding:1px;">
+                <img src="${chrome.runtime.getURL('icon48.png')}" style="width:14px; height:14px; border-radius:3px; display:block;" alt="ALETHEX">
               </div>
               <div>
                 <div class="alethex-drawer-title">ALETHEX Inspector</div>
@@ -534,6 +730,13 @@
               </div>
             </div>
             <div class="alethex-header-actions">
+              <button class="alethex-tool-btn" id="alethex-sound-btn" title="Toggle Acoustic Cues (Sound On/Off)">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                </svg>
+              </button>
               <button class="alethex-tool-btn" id="alethex-theme-btn" title="Toggle Light / Dark Theme">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="5"></circle>
@@ -571,12 +774,29 @@
       // Bind events
       document.getElementById("alethex-hud").addEventListener("click", toggleDrawer);
       document.getElementById("alethex-close").addEventListener("click", () => {
+        soundEngine.playClick();
         isDrawerOpen = false;
         document.getElementById("alethex-drawer").style.display = "none";
       });
 
+      // Sound button toggle
+      const soundBtn = document.getElementById("alethex-sound-btn");
+      if (soundBtn) {
+        soundBtn.addEventListener("click", () => {
+          soundEngine.enabled = !soundEngine.enabled;
+          try {
+            chrome.storage.local.set({ soundEnabled: soundEngine.enabled });
+          } catch (e) {}
+          renderDrawerSoundIcon();
+          if (soundEngine.enabled) {
+            soundEngine.playVerify();
+          }
+        });
+      }
+
       // In-page Theme Toggle
       document.getElementById("alethex-theme-btn").addEventListener("click", () => {
+        soundEngine.playClick();
         const cur = detectHostTheme();
         userThemeSetting = cur === "dark" ? "light" : "dark";
         try {
@@ -589,10 +809,38 @@
       document.getElementById("tab-btn-overview").addEventListener("click", () => switchDrawerTab("overview"));
       document.getElementById("tab-btn-facts").addEventListener("click", () => switchDrawerTab("facts"));
       document.getElementById("tab-btn-conflicts").addEventListener("click", () => switchDrawerTab("conflicts"));
+      renderDrawerSoundIcon();
+    }
+  }
+
+  function renderDrawerSoundIcon() {
+    const btn = document.getElementById("alethex-sound-btn");
+    if (!btn) return;
+    if (soundEngine.enabled) {
+      btn.title = "Acoustic Cues: Enabled (Click to mute)";
+      btn.innerHTML = `
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+        </svg>
+      `;
+      btn.style.color = "var(--al-text-primary)";
+    } else {
+      btn.title = "Acoustic Cues: Muted (Click to enable)";
+      btn.innerHTML = `
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <line x1="23" y1="9" x2="17" y2="15"></line>
+          <line x1="17" y1="9" x2="23" y2="15"></line>
+        </svg>
+      `;
+      btn.style.color = "var(--al-text-tertiary)";
     }
   }
 
   function switchDrawerTab(tab) {
+    soundEngine.playClick();
     activeTab = tab;
     document.querySelectorAll(".alethex-tab-btn").forEach(btn => btn.classList.remove("active"));
     const activeBtn = document.getElementById(`tab-btn-${tab}`);
@@ -601,12 +849,14 @@
   }
 
   function toggleDrawer() {
+    soundEngine.playClick();
     isDrawerOpen = !isDrawerOpen;
     const drawer = document.getElementById("alethex-drawer");
     if (drawer) {
       drawer.style.display = isDrawerOpen ? "flex" : "none";
       if (isDrawerOpen) {
         syncTheme();
+        renderDrawerSoundIcon();
         updateDrawerUI();
       }
     }
@@ -912,7 +1162,12 @@
             </div>
           `).join("")
         : `<div style="text-align:center; padding:24px 12px; color:var(--al-text-tertiary);">
-            <div style="margin-bottom:6px; font-size:18px;">📋</div>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 6px auto; opacity:0.6; display:block;">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
             <div style="font-weight:500;">No matching facts found.</div>
             <div style="font-size:10px; margin-top:2px;">Factual assertions in the conversation appear here automatically.</div>
            </div>`;
@@ -974,7 +1229,7 @@
             }
           }).join("")
         : `<div style="text-align:center; padding:28px 12px; color:var(--al-text-secondary);">
-            <div style="font-size:20px; color:var(--al-green-text); margin-bottom:6px;">✓</div>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 6px auto; color:var(--al-green-text); display:block;"><polyline points="20 6 9 17 4 12"></polyline></svg>
             <div style="font-weight:600; color:var(--al-text-primary);">Zero Contradictions Found</div>
             <div style="font-size:11px; color:var(--al-text-tertiary); margin-top:2px;">All extracted assertions across chat turns remain logically consistent.</div>
            </div>`;
@@ -993,6 +1248,7 @@
     const rescanBtn = body.querySelector("#alethex-rescan-btn");
     if (rescanBtn) {
       rescanBtn.addEventListener("click", () => {
+        soundEngine.playAudit();
         rescanBtn.innerText = "Scanning...";
         setTimeout(() => runAudit(true), 50);
       });
@@ -1001,6 +1257,7 @@
     const toggleHlBtn = body.querySelector("#alethex-toggle-hl-btn");
     if (toggleHlBtn) {
       toggleHlBtn.addEventListener("click", () => {
+        soundEngine.playClick();
         isHighlightingEnabled = !isHighlightingEnabled;
         applyHighlights();
         updateDrawerUI();
@@ -1112,9 +1369,11 @@
 
       if (newConflicts.length > 0) {
         currentConflicts = [...currentConflicts, ...newConflicts];
+        previousConflictCount = currentConflicts.length;
         const totalClaims = Math.max(1, currentBeliefs.length + currentSuperseded.length + currentConflicts.length);
         const issueScore = currentConflicts.length + currentSuperseded.length * 0.5;
         currentCI = Math.max(0, 1.0 - issueScore / totalClaims);
+        soundEngine.playConflict();
         updateHUD();
         applyHighlights();
         if (isDrawerOpen) updateDrawerUI();
@@ -1138,6 +1397,19 @@
     currentSuperseded = result.superseded;
     currentConflicts = result.conflicts;
     currentCI = result.ci;
+
+    // Acoustic truth feedback based on state delta
+    if (manual) {
+      soundEngine.playAudit();
+    } else {
+      if (currentConflicts.length > previousConflictCount) {
+        soundEngine.playConflict();
+      } else if (currentBeliefs.length > previousBeliefCount && currentConflicts.length === 0) {
+        soundEngine.playVerify();
+      }
+    }
+    previousConflictCount = currentConflicts.length;
+    previousBeliefCount = currentBeliefs.length;
 
     updateHUD();
     applyHighlights();
@@ -1189,12 +1461,18 @@
       if (!isDrawerOpen) toggleDrawer();
       sendResponse({ ok: true });
     } else if (request.action === "open_drawer") {
+      soundEngine.playClick();
       if (!isDrawerOpen) toggleDrawer();
       sendResponse({ ok: true });
     } else if (request.action === "toggle_highlights") {
       isHighlightingEnabled = !!request.enabled;
       applyHighlights();
       if (isDrawerOpen) updateDrawerUI();
+      sendResponse({ ok: true });
+    } else if (request.action === "toggle_sound") {
+      soundEngine.enabled = !!request.enabled;
+      renderDrawerSoundIcon();
+      if (soundEngine.enabled) soundEngine.playVerify();
       sendResponse({ ok: true });
     } else if (request.action === "set_theme") {
       userThemeSetting = request.theme || "auto";
@@ -1213,9 +1491,11 @@
   // Boot after document idle
   setTimeout(() => {
     try {
-      chrome.storage.local.get(["highlightConflicts", "userTheme"], (res) => {
+      chrome.storage.local.get(["highlightConflicts", "userTheme", "soundEnabled"], (res) => {
         if (res.highlightConflicts !== undefined) isHighlightingEnabled = res.highlightConflicts;
         if (res.userTheme) userThemeSetting = res.userTheme;
+        if (res.soundEnabled !== undefined) soundEngine.enabled = res.soundEnabled;
+        renderDrawerSoundIcon();
         syncTheme();
       });
     } catch (e) {}

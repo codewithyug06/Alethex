@@ -1,7 +1,193 @@
 /**
  * Popup Script for ALETHEX Universal Chrome Extension (v1.2.0)
- * Dual Light/Dark Theme Support & Resilient Content Script Messaging.
+ * Dual Light/Dark Theme Support, Acoustic Truth Cues & Resilient Content Script Messaging.
  */
+
+// ==========================================
+// Web Audio Synthesis Engine for ALETHEX
+// ==========================================
+class AlethexAudioEngine {
+  constructor() {
+    this.ctx = null;
+    this.enabled = true;
+    this.lastPlayTime = 0;
+    this.minInterval = 300;
+  }
+
+  init() {
+    if (!this.ctx && typeof window !== "undefined") {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        try {
+          this.ctx = new AudioCtx();
+        } catch (e) {}
+      }
+    }
+  }
+
+  ensureContext() {
+    this.init();
+    if (this.ctx && this.ctx.state === "suspended") {
+      this.ctx.resume().catch(() => {});
+    }
+  }
+
+  playVerify() {
+    if (!this.enabled) return;
+    const now = Date.now();
+    if (now - this.lastPlayTime < this.minInterval) return;
+    this.lastPlayTime = now;
+
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    try {
+      const t = this.ctx.currentTime;
+      const osc1 = this.ctx.createOscillator();
+      const osc2 = this.ctx.createOscillator();
+      const gain1 = this.ctx.createGain();
+      const gain2 = this.ctx.createGain();
+      const filter = this.ctx.createBiquadFilter();
+
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(2600, t);
+
+      // Chime: D5 (587.33 Hz) -> A5 (880.00 Hz)
+      osc1.type = "sine";
+      osc1.frequency.setValueAtTime(587.33, t);
+
+      osc2.type = "sine";
+      osc2.frequency.setValueAtTime(880.00, t + 0.04);
+
+      gain1.gain.setValueAtTime(0.0001, t);
+      gain1.gain.exponentialRampToValueAtTime(0.08, t + 0.01);
+      gain1.gain.exponentialRampToValueAtTime(0.0001, t + 0.24);
+
+      gain2.gain.setValueAtTime(0.0001, t);
+      gain2.gain.setValueAtTime(0.0001, t + 0.04);
+      gain2.gain.exponentialRampToValueAtTime(0.09, t + 0.055);
+      gain2.gain.exponentialRampToValueAtTime(0.0001, t + 0.32);
+
+      osc1.connect(gain1);
+      osc2.connect(gain2);
+      gain1.connect(filter);
+      gain2.connect(filter);
+      filter.connect(this.ctx.destination);
+
+      osc1.start(t);
+      osc2.start(t + 0.04);
+      osc1.stop(t + 0.25);
+      osc2.stop(t + 0.33);
+    } catch (e) {}
+  }
+
+  playConflict() {
+    if (!this.enabled) return;
+    const now = Date.now();
+    if (now - this.lastPlayTime < this.minInterval) return;
+    this.lastPlayTime = now;
+
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    try {
+      const t = this.ctx.currentTime;
+      const osc1 = this.ctx.createOscillator();
+      const osc2 = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      const filter = this.ctx.createBiquadFilter();
+
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(1400, t);
+
+      osc1.type = "triangle";
+      osc1.frequency.setValueAtTime(520, t);
+      osc1.frequency.exponentialRampToValueAtTime(390, t + 0.28);
+
+      osc2.type = "sine";
+      osc2.frequency.setValueAtTime(488, t);
+      osc2.frequency.exponentialRampToValueAtTime(366, t + 0.28);
+
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.09, t + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.30);
+
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(filter);
+      filter.connect(this.ctx.destination);
+
+      osc1.start(t);
+      osc2.start(t);
+      osc1.stop(t + 0.31);
+      osc2.stop(t + 0.31);
+    } catch (e) {}
+  }
+
+  playAudit() {
+    if (!this.enabled) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    try {
+      const t = this.ctx.currentTime;
+      const oscSweep = this.ctx.createOscillator();
+      const gainSweep = this.ctx.createGain();
+
+      oscSweep.type = "sine";
+      oscSweep.frequency.setValueAtTime(260, t);
+      oscSweep.frequency.exponentialRampToValueAtTime(740, t + 0.18);
+
+      gainSweep.gain.setValueAtTime(0.0001, t);
+      gainSweep.gain.exponentialRampToValueAtTime(0.07, t + 0.02);
+      gainSweep.gain.exponentialRampToValueAtTime(0.0001, t + 0.19);
+
+      const oscPing = this.ctx.createOscillator();
+      const gainPing = this.ctx.createGain();
+
+      oscPing.type = "sine";
+      oscPing.frequency.setValueAtTime(880, t + 0.18);
+
+      gainPing.gain.setValueAtTime(0.0001, t);
+      gainPing.gain.setValueAtTime(0.0001, t + 0.17);
+      gainPing.gain.exponentialRampToValueAtTime(0.08, t + 0.19);
+      gainPing.gain.exponentialRampToValueAtTime(0.0001, t + 0.38);
+
+      oscSweep.connect(gainSweep);
+      gainSweep.connect(this.ctx.destination);
+      oscPing.connect(gainPing);
+      gainPing.connect(this.ctx.destination);
+
+      oscSweep.start(t);
+      oscSweep.stop(t + 0.20);
+      oscPing.start(t + 0.18);
+      oscPing.stop(t + 0.40);
+    } catch (e) {}
+  }
+
+  playClick() {
+    if (!this.enabled) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    try {
+      const t = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(1200, t);
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.04, t + 0.002);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.025);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(t);
+      osc.stop(t + 0.03);
+    } catch (e) {}
+  }
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   const siteEl = document.getElementById("site-name");
@@ -12,6 +198,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const auditBtn = document.getElementById("audit-btn");
   const openDrawerLink = document.getElementById("open-drawer-link");
   const toggleHighlight = document.getElementById("toggle-highlight");
+  const toggleSound = document.getElementById("toggle-sound");
+
+  const audio = new AlethexAudioEngine();
 
   // ==========================================
   // 1. Theme Management (Auto / Light / Dark)
@@ -20,7 +209,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderThemeIcon(effectiveTheme) {
     if (effectiveTheme === "light") {
-      // Sun Icon
       themeIcon.innerHTML = `
         <circle cx="12" cy="12" r="5"></circle>
         <line x1="12" y1="1" x2="12" y2="3"></line>
@@ -34,7 +222,6 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
       themeBtn.title = "Current: Light Theme (Click to switch to Dark)";
     } else {
-      // Moon Icon
       themeIcon.innerHTML = `
         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
       `;
@@ -64,6 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Cycle Theme: auto -> light -> dark -> auto
   themeBtn.addEventListener("click", () => {
+    audio.playClick();
     if (currentThemeMode === "auto") {
       currentThemeMode = "light";
     } else if (currentThemeMode === "light") {
@@ -165,7 +353,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   chrome.storage.local.get(
-    ["totalContradictionsBlocked", "activeBeliefsCount", "highlightConflicts"],
+    ["totalContradictionsBlocked", "activeBeliefsCount", "highlightConflicts", "soundEnabled"],
     (data) => {
       const beliefs = data.activeBeliefsCount || 0;
       const conflicts = data.totalContradictionsBlocked || 0;
@@ -185,6 +373,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (data.highlightConflicts !== undefined) {
         toggleHighlight.checked = data.highlightConflicts;
       }
+
+      const isSoundOn = data.soundEnabled !== false;
+      if (toggleSound) {
+        toggleSound.checked = isSoundOn;
+      }
+      audio.enabled = isSoundOn;
     }
   );
 
@@ -193,6 +387,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==========================================
   toggleHighlight.addEventListener("change", (e) => {
     const isChecked = e.target.checked;
+    audio.playClick();
     chrome.storage.local.set({ highlightConflicts: isChecked });
 
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -208,9 +403,36 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ==========================================
-  // 5. Audit Button
+  // 5. Toggle Acoustic Truth Cues
+  // ==========================================
+  if (toggleSound) {
+    toggleSound.addEventListener("change", (e) => {
+      const isChecked = e.target.checked;
+      audio.enabled = isChecked;
+      chrome.storage.local.set({ soundEnabled: isChecked });
+
+      if (isChecked) {
+        audio.playVerify();
+      }
+
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs && tabs[0] && tabs[0].id) {
+          chrome.tabs.sendMessage(tabs[0].id, {
+            action: "toggle_sound",
+            enabled: isChecked
+          }, () => {
+            if (chrome.runtime.lastError) { /* ignore */ }
+          });
+        }
+      });
+    });
+  }
+
+  // ==========================================
+  // 6. Audit Button
   // ==========================================
   auditBtn.addEventListener("click", () => {
+    audio.playAudit();
     auditBtn.innerHTML = `
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="animation: alethex-spin 1s linear infinite;">
         <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
@@ -248,10 +470,11 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ==========================================
-  // 6. Open Inspector Drawer Link
+  // 7. Open Inspector Drawer Link
   // ==========================================
   openDrawerLink.addEventListener("click", (e) => {
     e.preventDefault();
+    audio.playClick();
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs && tabs[0] && tabs[0].id) {
         chrome.tabs.sendMessage(tabs[0].id, { action: "open_drawer" }, () => {

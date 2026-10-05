@@ -97,16 +97,22 @@
       gap: 10px;
     }
     .brand-icon {
-      width: 30px;
-      height: 30px;
+      width: 32px;
+      height: 32px;
       border-radius: 8px;
-      background: var(--accent-subtle);
-      border: 1px solid var(--border-subtle);
-      color: var(--accent-text);
       display: flex;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
       box-shadow: var(--shadow-sm);
+      flex-shrink: 0;
+    }
+    .brand-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 8px;
     }
     .brand-text {
       display: flex;
@@ -401,11 +407,8 @@
   <!-- Header -->
   <div class="header">
     <div class="brand">
-      <div class="brand-icon" title="ALETHEX Verified">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-          <path d="m9 12 2 2 4-4"/>
-        </svg>
+      <div class="brand-icon" title="ALETHEX Truth Guard">
+        <img src="icon48.png" alt="ALETHEX" />
       </div>
       <div class="brand-text">
         <span class="title">ALETHEX</span>
@@ -462,6 +465,13 @@
       <span>Highlight Drift in Chat</span>
       <label class="switch">
         <input type="checkbox" id="toggle-highlight" checked />
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="setting-row">
+      <span>Acoustic Truth Cues</span>
+      <label class="switch">
+        <input type="checkbox" id="toggle-sound" checked />
         <span class="slider"></span>
       </label>
     </div>

@@ -14,6 +14,11 @@ def test_run_real_dataset_cli_smoke(tmp_path):
 
     output_dir = tmp_path / "output"
     runner = CliRunner()
+    from pathlib import Path
+    config_dir = Path(__file__).resolve().parent.parent / "configs"
+    if not config_dir.exists():
+        config_dir = Path("configs")
+
     result = runner.invoke(
         main,
         [
@@ -22,7 +27,7 @@ def test_run_real_dataset_cli_smoke(tmp_path):
             "--output-dir",
             str(output_dir),
             "--config-dir",
-            "configs",
+            str(config_dir),
             "--device",
             "cpu",
         ],

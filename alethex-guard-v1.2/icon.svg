@@ -1,0 +1,175 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b101d" />
+      <stop offset="45%" stop-color="#070a12" />
+      <stop offset="100%" stop-color="#04060a" />
+    </linearGradient>
+
+    <!-- Outer Rim Glow Gradient -->
+    <linearGradient id="rimGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f2fe" />
+      <stop offset="35%" stop-color="#38bdf8" />
+      <stop offset="70%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#8b5cf6" />
+    </linearGradient>
+
+    <!-- Alpha Primary Gradient -->
+    <linearGradient id="alphaGrad" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="40%" stop-color="#0284c7" />
+      <stop offset="85%" stop-color="#1d4ed8" />
+      <stop offset="100%" stop-color="#1e1b4b" />
+    </linearGradient>
+
+    <!-- Alpha Right Facet / Highlight -->
+    <linearGradient id="highlightGrad" x1="0%" y1="0%" x2="100%" y2="80%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+      <stop offset="30%" stop-color="#7dd3fc" stop-opacity="0.9" />
+      <stop offset="70%" stop-color="#2563eb" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#1e3a8a" stop-opacity="0.4" />
+    </linearGradient>
+
+    <!-- Temporal Loop Gradient -->
+    <linearGradient id="loopGrad" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="35%" stop-color="#06b6d4" />
+      <stop offset="70%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#8b5cf6" />
+    </linearGradient>
+
+    <!-- Central Core Radial Glow -->
+    <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.4" />
+      <stop offset="40%" stop-color="#2563eb" stop-opacity="0.2" />
+      <stop offset="80%" stop-color="#06b6d4" stop-opacity="0.05" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Prism Gem Radial Glow -->
+    <radialGradient id="prismBloom" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
+      <stop offset="25%" stop-color="#bae6fd" stop-opacity="0.8" />
+      <stop offset="60%" stop-color="#38bdf8" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#0284c7" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Soft Drop Shadow Filter -->
+    <filter id="shieldShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.6" />
+    </filter>
+    <filter id="coreGlowFilter" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- 1. Background Squircle Base -->
+  <rect x="20" y="20" width="472" height="472" rx="108" ry="108" fill="url(#bgGrad)" />
+
+  <!-- 2. Ambient Internal Bloom -->
+  <circle cx="256" cy="250" r="180" fill="url(#centerGlow)" />
+
+  <!-- 3. Outer Luminous Border -->
+  <rect x="20" y="20" width="472" height="472" rx="108" ry="108" fill="none" stroke="url(#rimGrad)" stroke-width="7" stroke-opacity="0.9" />
+
+  <!-- 4. Subtle Inner Inset Bevel -->
+  <rect x="26" y="26" width="460" height="460" rx="102" ry="102" fill="none" stroke="#ffffff" stroke-width="1.2" stroke-opacity="0.08" />
+
+  <!-- 5. Temporal Calibration Dial Rings (Subtle Neuro-Symbolic Graph) -->
+  <circle cx="256" cy="256" r="172" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-opacity="0.12" stroke-dasharray="6 8" />
+  <circle cx="256" cy="256" r="128" fill="none" stroke="#6366f1" stroke-width="1" stroke-opacity="0.15" />
+  
+  <!-- Subtle Orbit Node Markers -->
+  <circle cx="256" cy="84" r="3.5" fill="#38bdf8" opacity="0.4" />
+  <circle cx="428" cy="256" r="3.5" fill="#38bdf8" opacity="0.4" />
+  <circle cx="256" cy="428" r="3.5" fill="#38bdf8" opacity="0.4" />
+  <circle cx="84" cy="256" r="3.5" fill="#38bdf8" opacity="0.4" />
+
+  <!-- 6. Left Temporal Loop Arc (Loop of the Alpha) -->
+  <path d="M 160 330 C 105 330, 95 240, 160 215 C 220 190, 275 270, 360 270" 
+        fill="none" 
+        stroke="url(#loopGrad)" 
+        stroke-width="18" 
+        stroke-linecap="round" 
+        stroke-opacity="0.75" />
+
+  <!-- 7. Main Alpha Arch / Truth Shield Apex -->
+  <!-- Left Wing (Back/Shadowed) -->
+  <path d="M 148 375 L 244 128 C 248 118, 264 118, 268 128 L 364 375" 
+        fill="none" 
+        stroke="#0c4a6e" 
+        stroke-width="32" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"
+        opacity="0.5" />
+
+  <!-- Left Ascending Stroke (Cyber Blue) -->
+  <path d="M 152 372 L 256 122" 
+        fill="none" 
+        stroke="url(#alphaGrad)" 
+        stroke-width="24" 
+        stroke-linecap="round" 
+        filter="url(#shieldShadow)" />
+
+  <!-- Right Descending Stroke (Luminous Specular Apex) -->
+  <path d="M 256 122 L 360 372" 
+        fill="none" 
+        stroke="url(#highlightGrad)" 
+        stroke-width="24" 
+        stroke-linecap="round" 
+        filter="url(#shieldShadow)" />
+
+  <!-- 8. Horizontal Temporal Crossbar / Truth Bridge -->
+  <path d="M 188 288 L 324 288" 
+        fill="none" 
+        stroke="url(#loopGrad)" 
+        stroke-width="14" 
+        stroke-linecap="round" />
+
+  <!-- 9. Central Truth Diamond / Prism of Aletheia -->
+  <g transform="translate(256, 215)" filter="url(#coreGlowFilter)">
+    <!-- Ambient Core Bloom -->
+    <circle cx="0" cy="0" r="32" fill="url(#prismBloom)" opacity="0.45" />
+
+    <!-- Faceted Diamond Geometry -->
+    <!-- Top Apex Facet -->
+    <polygon points="0,-26 22,0 0,6 -22,0" fill="#ffffff" opacity="0.95" />
+    <!-- Bottom Left Facet -->
+    <polygon points="-22,0 0,6 0,26" fill="#38bdf8" />
+    <!-- Bottom Right Facet -->
+    <polygon points="22,0 0,6 0,26" fill="#0284c7" />
+    <!-- Specular Highlight Point -->
+    <circle cx="0" cy="0" r="4" fill="#ffffff" />
+    <!-- Radiating Calibration Ray Cross -->
+    <line x1="-36" y1="0" x2="36" y2="0" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.8" />
+    <line x1="0" y1="-34" x2="0" y2="34" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.8" />
+  </g>
+
+  <!-- 10. Precision Verification Caliper Brackets (Lateral Sensor Frames) -->
+  <path d="M 86 215 L 72 235 L 72 277 L 86 297" 
+        fill="none" 
+        stroke="#38bdf8" 
+        stroke-width="4.5" 
+        stroke-linecap="round" 
+        stroke-linejoin="round" 
+        opacity="0.6" />
+  <circle cx="72" cy="256" r="3" fill="#38bdf8" opacity="0.8" />
+
+  <path d="M 426 215 L 440 235 L 440 277 L 426 297" 
+        fill="none" 
+        stroke="#38bdf8" 
+        stroke-width="4.5" 
+        stroke-linecap="round" 
+        stroke-linejoin="round" 
+        opacity="0.6" />
+  <circle cx="440" cy="256" r="3" fill="#38bdf8" opacity="0.8" />
+
+  <!-- 11. Top Status Micro-LED -->
+  <circle cx="256" cy="46" r="4.5" fill="#10b981" />
+  <circle cx="256" cy="46" r="9" fill="none" stroke="#10b981" stroke-width="1.5" opacity="0.4" />
+</svg>
