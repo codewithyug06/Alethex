@@ -25,42 +25,26 @@
     "scripting"
   ],
   "host_permissions": [
-    "https://chatgpt.com/*",
-    "https://chat.openai.com/*",
-    "https://claude.ai/*",
-    "https://gemini.google.com/*",
-    "https://copilot.microsoft.com/*",
-    "https://www.perplexity.ai/*",
-    "https://chat.deepseek.com/*",
-    "https://poe.com/*",
-    "https://chat.mistral.ai/*",
-    "https://huggingface.co/chat/*",
-    "https://x.com/i/grok/*",
-    "http://localhost:*/*",
-    "http://127.0.0.1:*/*"
+    "<all_urls>"
   ],
   "web_accessible_resources": [
     {
-      "resources": ["nli_worker.js", "vendor/transformers.min.js"],
+      "resources": [
+        "nli_worker.js",
+        "vendor/transformers.min.js",
+        "icon16.png",
+        "icon48.png",
+        "icon128.png",
+        "icon.png",
+        "icon.svg"
+      ],
       "matches": ["<all_urls>"]
     }
   ],
   "content_scripts": [
     {
       "matches": [
-        "https://chatgpt.com/*",
-        "https://chat.openai.com/*",
-        "https://claude.ai/*",
-        "https://gemini.google.com/*",
-        "https://copilot.microsoft.com/*",
-        "https://www.perplexity.ai/*",
-        "https://chat.deepseek.com/*",
-        "https://poe.com/*",
-        "https://chat.mistral.ai/*",
-        "https://huggingface.co/chat/*",
-        "https://x.com/i/grok/*",
-        "http://localhost:*/*",
-        "http://127.0.0.1:*/*"
+        "<all_urls>"
       ],
       "js": ["content.js"],
       "run_at": "document_idle"

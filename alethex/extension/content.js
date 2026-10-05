@@ -6,28 +6,38 @@
  */
 
 (function () {
-  if (window.__ALETHEX_GUARD_INITIALIZED__) {
-    try {
-      if (chrome.runtime && chrome.runtime.id) {
-        return;
-      }
-    } catch (e) {}
+  // If already initialized and #alethex-root exists in DOM, avoid duplicate run
+  if (window.__ALETHEX_GUARD_INITIALIZED__ && document.getElementById("alethex-root")) {
+    return;
   }
   window.__ALETHEX_GUARD_INITIALIZED__ = true;
 
-  // Platform detection
+  // Platform detection & AI identification
   const host = window.location.hostname.toLowerCase();
+  const path = window.location.pathname.toLowerCase();
+  const url = window.location.href.toLowerCase();
+
   let platform = "AI Chat";
-  if (host.includes("chatgpt") || host.includes("openai")) platform = "ChatGPT";
-  else if (host.includes("claude.ai")) platform = "Claude.ai";
-  else if (host.includes("gemini.google")) platform = "Google Gemini";
-  else if (host.includes("copilot.microsoft")) platform = "Copilot";
-  else if (host.includes("deepseek")) platform = "DeepSeek";
-  else if (host.includes("perplexity")) platform = "Perplexity";
-  else if (host.includes("grok") || host.includes("x.com")) platform = "Grok";
-  else if (host.includes("poe.com")) platform = "Poe";
-  else if (host.includes("mistral")) platform = "Mistral";
-  else if (host.includes("localhost") || host.includes("127.0.0.1")) platform = "Local WebUI";
+  let isAI = false;
+
+  if (host.includes("chatgpt") || host.includes("openai")) { platform = "ChatGPT"; isAI = true; }
+  else if (host.includes("claude.ai")) { platform = "Claude.ai"; isAI = true; }
+  else if (host.includes("gemini.google") || url.includes("google.com/gemini")) { platform = "Google Gemini"; isAI = true; }
+  else if (host.includes("copilot.microsoft")) { platform = "Copilot"; isAI = true; }
+  else if (host.includes("deepseek")) { platform = "DeepSeek"; isAI = true; }
+  else if (host.includes("perplexity")) { platform = "Perplexity"; isAI = true; }
+  else if (host.includes("grok") || (host.includes("x.com") && (path.includes("grok") || url.includes("grok")))) { platform = "Grok"; isAI = true; }
+  else if (host.includes("poe.com")) { platform = "Poe"; isAI = true; }
+  else if (host.includes("mistral")) { platform = "Mistral"; isAI = true; }
+  else if (host.includes("huggingface.co") && (path.includes("chat") || url.includes("chat"))) { platform = "HuggingChat"; isAI = true; }
+  else if (host.includes("localhost") || host.includes("127.0.0.1") || host.includes("0.0.0.0")) { platform = "Local AI WebUI"; isAI = true; }
+  else if (host.includes("openwebui") || host.includes("librechat") || host.includes("v0.dev") || host.includes("openrouter")) { platform = "AI WebUI"; isAI = true; }
+  else {
+    // Check if DOM already has AI chat markers
+    if (typeof document !== "undefined" && document.querySelector && document.querySelector('[data-message-author-role], [class*="chat-container"], [id*="chat-container"]')) {
+      isAI = true;
+    }
+  }
 
   // State variables
   let currentBeliefs = [];
@@ -289,19 +299,19 @@
     if (userThemeSetting === "light" || userThemeSetting === "dark") {
       return userThemeSetting;
     }
-    const docEl = document.documentElement;
-    const body = document.body;
+    const docEl = typeof document !== "undefined" ? document.documentElement : null;
+    const body = typeof document !== "undefined" ? document.body : null;
 
     // Check host class or data attributes (ChatGPT, Claude, etc.)
-    const isDarkClass = docEl.classList.contains("dark") ||
-                        body.classList.contains("dark") ||
-                        docEl.getAttribute("data-theme") === "dark" ||
-                        docEl.getAttribute("data-color-mode") === "dark";
+    const isDarkClass = (docEl && docEl.classList && docEl.classList.contains("dark")) ||
+                        (body && body.classList && body.classList.contains("dark")) ||
+                        (docEl && (docEl.getAttribute("data-theme") === "dark" || docEl.getAttribute("data-color-mode") === "dark")) ||
+                        (body && (body.getAttribute("data-theme") === "dark" || body.getAttribute("data-color-mode") === "dark"));
 
     if (isDarkClass) return "dark";
 
     // Check system preference
-    if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+    if (typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
       return "dark";
     }
 
@@ -333,24 +343,53 @@
     style.textContent = `
       #alethex-root {
         position: fixed;
-        bottom: 24px;
-        right: 24px;
+        bottom: 28px;
+        right: 28px;
         z-index: 2147483647;
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Inter", sans-serif;
         pointer-events: none;
         -webkit-font-smoothing: antialiased;
-      }
 
-      /* Dark Theme Tokens */
-      #alethex-root[data-theme="dark"] {
-        --al-bg-hud: rgba(18, 22, 30, 0.88);
+        /* Default High-Contrast Dark Fallback Tokens */
+        --al-bg-hud: rgba(18, 22, 30, 0.94);
         --al-bg-drawer: #0f131a;
         --al-bg-header: #151a24;
         --al-bg-surface: #171d27;
         --al-bg-surface-elevated: #1f2633;
         --al-bg-surface-hover: #262f40;
-        --al-border-subtle: rgba(255, 255, 255, 0.08);
-        --al-border-strong: rgba(255, 255, 255, 0.16);
+        --al-border-subtle: rgba(255, 255, 255, 0.12);
+        --al-border-strong: rgba(255, 255, 255, 0.22);
+        --al-text-primary: #f1f5f9;
+        --al-text-secondary: #94a3b8;
+        --al-text-tertiary: #64748b;
+        --al-accent: #2563eb;
+        --al-accent-hover: #1d4ed8;
+        --al-accent-subtle: rgba(37, 99, 235, 0.14);
+        --al-accent-text: #60a5fa;
+        --al-green: #10b981;
+        --al-green-text: #34d399;
+        --al-green-subtle: rgba(16, 185, 129, 0.12);
+        --al-amber: #f59e0b;
+        --al-amber-text: #fbbf24;
+        --al-amber-subtle: rgba(245, 158, 11, 0.12);
+        --al-red: #ef4444;
+        --al-red-text: #f87171;
+        --al-red-subtle: rgba(239, 68, 68, 0.12);
+        --al-shadow-hud: 0 8px 32px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.2);
+        --al-shadow-drawer: 0 24px 48px -12px rgba(0, 0, 0, 0.65), 0 0 0 1px var(--al-border-subtle);
+        --al-tab-bg: #11151d;
+      }
+
+      /* Dark Theme Tokens */
+      #alethex-root[data-theme="dark"] {
+        --al-bg-hud: rgba(18, 22, 30, 0.92);
+        --al-bg-drawer: #0f131a;
+        --al-bg-header: #151a24;
+        --al-bg-surface: #171d27;
+        --al-bg-surface-elevated: #1f2633;
+        --al-bg-surface-hover: #262f40;
+        --al-border-subtle: rgba(255, 255, 255, 0.1);
+        --al-border-strong: rgba(255, 255, 255, 0.18);
         --al-text-primary: #f1f5f9;
         --al-text-secondary: #94a3b8;
         --al-text-tertiary: #64748b;
@@ -367,21 +406,21 @@
         --al-red: #ef4444;
         --al-red-text: #f87171;
         --al-red-subtle: rgba(239, 68, 68, 0.12);
-        --al-shadow-hud: 0 4px 20px -2px rgba(0, 0, 0, 0.5), 0 2px 6px -1px rgba(0, 0, 0, 0.3);
+        --al-shadow-hud: 0 8px 30px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.25);
         --al-shadow-drawer: 0 20px 45px -10px rgba(0, 0, 0, 0.75), 0 0 0 1px var(--al-border-subtle);
         --al-tab-bg: #11151d;
       }
 
       /* Light Theme Tokens */
       #alethex-root[data-theme="light"] {
-        --al-bg-hud: rgba(255, 255, 255, 0.92);
+        --al-bg-hud: rgba(255, 255, 255, 0.95);
         --al-bg-drawer: #ffffff;
         --al-bg-header: #f8fafc;
         --al-bg-surface: #f8fafc;
         --al-bg-surface-elevated: #f1f5f9;
         --al-bg-surface-hover: #e2e8f0;
-        --al-border-subtle: rgba(15, 23, 42, 0.08);
-        --al-border-strong: rgba(15, 23, 42, 0.16);
+        --al-border-subtle: rgba(15, 23, 42, 0.1);
+        --al-border-strong: rgba(15, 23, 42, 0.2);
         --al-text-primary: #0f172a;
         --al-text-secondary: #475569;
         --al-text-tertiary: #94a3b8;
@@ -398,7 +437,7 @@
         --al-red: #dc2626;
         --al-red-text: #dc2626;
         --al-red-subtle: rgba(220, 38, 38, 0.08);
-        --al-shadow-hud: 0 4px 20px -2px rgba(15, 23, 42, 0.12), 0 2px 6px -1px rgba(15, 23, 42, 0.06);
+        --al-shadow-hud: 0 8px 30px rgba(15, 23, 42, 0.15), 0 2px 6px rgba(15, 23, 42, 0.08);
         --al-shadow-drawer: 0 20px 45px -10px rgba(15, 23, 42, 0.18), 0 0 0 1px var(--al-border-subtle);
         --al-tab-bg: #e2e8f0;
       }
@@ -415,9 +454,9 @@
         border: 1px solid var(--al-border-subtle);
         box-shadow: var(--al-shadow-hud);
         border-radius: 9999px;
-        padding: 6px 13px;
-        cursor: pointer;
-        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        padding: 7px 14px;
+        cursor: grab;
+        transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
         user-select: none;
         color: var(--al-text-primary);
       }
@@ -425,6 +464,9 @@
         transform: translateY(-2px);
         border-color: var(--al-border-strong);
         box-shadow: var(--al-shadow-hud), 0 0 0 3px var(--al-accent-subtle);
+      }
+      #alethex-hud:active {
+        cursor: grabbing;
       }
       .alethex-dot {
         width: 7px;
@@ -711,6 +753,7 @@
   // ==========================================
   function initDOM() {
     injectStyles();
+    if (!document.body) return;
 
     let root = document.getElementById("alethex-root");
     if (!root) {
@@ -718,7 +761,21 @@
       root.id = "alethex-root";
       root.setAttribute("data-theme", detectHostTheme());
       root.innerHTML = `
-        <div id="alethex-hud" title="Click to open ALETHEX Truth Drawer">
+        <div id="alethex-hud" title="ALETHEX Truth Guard (Click to inspect / Drag to move)">
+          <div style="width:16px; height:16px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg width="15" height="15" viewBox="0 0 128 128" fill="none">
+              <defs>
+                <linearGradient id="alShieldGrad" x1="64" y1="12" x2="64" y2="116" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#3b82f6"/>
+                  <stop offset="100%" stop-color="#1d4ed8"/>
+                </linearGradient>
+              </defs>
+              <path d="M64 14 C82 25 104 28 112 31 C113 65 101 98 64 114 C27 98 15 65 16 31 C24 28 46 25 64 14 Z" fill="url(#alShieldGrad)" stroke="#60a5fa" stroke-width="4"/>
+              <polygon points="64,64 42,38 86,38" fill="rgba(255,255,255,0.25)"/>
+              <polygon points="64,64 42,90 86,90" fill="rgba(255,255,255,0.25)"/>
+              <polygon points="64,56 71,64 64,72 57,64" fill="#38bdf8"/>
+            </svg>
+          </div>
           <span class="alethex-dot" id="alethex-dot"></span>
           <span class="alethex-hud-title">ALETHEX</span>
           <span style="color:var(--al-text-tertiary); font-size:10px;">·</span>
@@ -727,12 +784,17 @@
         <div id="alethex-drawer">
           <div class="alethex-drawer-header">
             <div class="alethex-brand-lockup">
-              <div class="alethex-brand-badge" style="overflow:hidden; display:flex; align-items:center; justify-content:center; padding:1px;">
-                <img src="${chrome.runtime.getURL('icon48.png')}" style="width:14px; height:14px; border-radius:3px; display:block;" alt="ALETHEX">
+              <div class="alethex-brand-badge" style="overflow:hidden; display:flex; align-items:center; justify-content:center; padding:1px; width:22px; height:22px; border-radius:6px; background:var(--al-accent-subtle); border:1px solid var(--al-border-subtle);">
+                <svg width="15" height="15" viewBox="0 0 128 128" fill="none">
+                  <path d="M64 14 C82 25 104 28 112 31 C113 65 101 98 64 114 C27 98 15 65 16 31 C24 28 46 25 64 14 Z" fill="#2563eb" stroke="#60a5fa" stroke-width="4"/>
+                  <polygon points="64,64 42,38 86,38" fill="rgba(255,255,255,0.3)"/>
+                  <polygon points="64,64 42,90 86,90" fill="rgba(255,255,255,0.3)"/>
+                  <polygon points="64,56 71,64 64,72 57,64" fill="#38bdf8"/>
+                </svg>
               </div>
               <div>
                 <div class="alethex-drawer-title">ALETHEX Inspector</div>
-                <div class="alethex-platform-pill">${platform} Active</div>
+                <div class="alethex-platform-pill" id="alethex-platform-pill">${platform} Active</div>
               </div>
             </div>
             <div class="alethex-header-actions">
@@ -777,9 +839,11 @@
       `;
       document.body.appendChild(root);
 
-      // Bind events
-      document.getElementById("alethex-hud").addEventListener("click", toggleDrawer);
-      document.getElementById("alethex-close").addEventListener("click", () => {
+      // Setup Draggable & Click on HUD
+      setupDraggable(document.getElementById("alethex-hud"), root);
+
+      document.getElementById("alethex-close").addEventListener("click", (e) => {
+        e.stopPropagation();
         soundEngine.playClick();
         isDrawerOpen = false;
         document.getElementById("alethex-drawer").style.display = "none";
@@ -816,6 +880,107 @@
       document.getElementById("tab-btn-facts").addEventListener("click", () => switchDrawerTab("facts"));
       document.getElementById("tab-btn-conflicts").addEventListener("click", () => switchDrawerTab("conflicts"));
       renderDrawerSoundIcon();
+    }
+  }
+
+  // ==========================================
+  // Draggable HUD Capsule Logic
+  // ==========================================
+  function setupDraggable(hudEl, rootEl) {
+    if (!hudEl || !rootEl) return;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    let initialLeft = 0;
+    let initialTop = 0;
+    let hasMoved = false;
+
+    hudEl.addEventListener("mousedown", (e) => {
+      if (e.button !== 0) return;
+      isDragging = true;
+      hasMoved = false;
+      startX = e.clientX;
+      startY = e.clientY;
+
+      const rect = rootEl.getBoundingClientRect();
+      initialLeft = rect.left;
+      initialTop = rect.top;
+
+      const onMouseMove = (moveEvent) => {
+        if (!isDragging) return;
+        const dx = moveEvent.clientX - startX;
+        const dy = moveEvent.clientY - startY;
+
+        if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+          hasMoved = true;
+          hudEl.style.cursor = "grabbing";
+        }
+
+        if (hasMoved) {
+          const newLeft = Math.max(12, Math.min(window.innerWidth - rect.width - 12, initialLeft + dx));
+          const newTop = Math.max(12, Math.min(window.innerHeight - rect.height - 12, initialTop + dy));
+
+          rootEl.style.left = `${newLeft}px`;
+          rootEl.style.top = `${newTop}px`;
+          rootEl.style.right = "auto";
+          rootEl.style.bottom = "auto";
+
+          adjustDrawerPlacement(newLeft, newTop);
+        }
+      };
+
+      const onMouseUp = () => {
+        isDragging = false;
+        hudEl.style.cursor = "grab";
+        document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mouseup", onMouseUp);
+
+        if (!hasMoved) {
+          toggleDrawer();
+        }
+      };
+
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
+    });
+  }
+
+  function adjustDrawerPlacement(left, top) {
+    const drawer = document.getElementById("alethex-drawer");
+    if (!drawer) return;
+
+    if (top < window.innerHeight / 2) {
+      drawer.style.top = "44px";
+      drawer.style.bottom = "auto";
+    } else {
+      drawer.style.top = "auto";
+      drawer.style.bottom = "44px";
+    }
+
+    if (left < window.innerWidth / 2) {
+      drawer.style.left = "0";
+      drawer.style.right = "auto";
+    } else {
+      drawer.style.left = "auto";
+      drawer.style.right = "0";
+    }
+  }
+
+  function ensureMounted() {
+    if (typeof document === "undefined" || !document.body) {
+      if (typeof document !== "undefined" && document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", ensureMounted, { once: true });
+      }
+      return;
+    }
+
+    injectStyles();
+
+    let root = document.getElementById("alethex-root");
+    if (!root) {
+      initDOM();
+    } else if (!document.body.contains(root)) {
+      document.body.appendChild(root);
     }
   }
 
@@ -887,12 +1052,15 @@
 
   function getTurnNodes() {
     let selector = GENERIC_SELECTOR;
-    if (platform === "ChatGPT") selector += ', [data-message-author-role], .whitespace-pre-wrap';
-    else if (platform === "Claude.ai") selector += ', .font-claude-message, .font-user-message, div.prose, [data-testid*="message"]';
-    else if (platform === "Google Gemini") selector += ', .user-query-container, .response-container, message-content';
-    else if (platform === "DeepSeek") selector += ', .ds-markdown';
-    else if (platform === "Perplexity") selector += ', [class*="answer"]';
-    else if (platform === "Copilot") selector += ', cib-message-group, .ac-textBlock';
+    if (platform === "ChatGPT") selector += ', [data-message-author-role], div[class*="text-message"], .markdown, .whitespace-pre-wrap';
+    else if (platform === "Claude.ai") selector += ', .font-claude-message, .font-user-message, div.prose, [data-testid*="message"], div[class*="ChatMessage"]';
+    else if (platform === "Google Gemini") selector += ', .user-query-container, .response-container, message-content, div[class*="model-response"], div[class*="query-content"]';
+    else if (platform === "DeepSeek") selector += ', .ds-markdown, div[class*="chat-message"], div[class*="message-content"]';
+    else if (platform === "Perplexity") selector += ', div[class*="answer"], div[class*="message"]';
+    else if (platform === "Copilot") selector += ', cib-message-group, .ac-textBlock, div[class*="message"]';
+    else if (platform === "Grok") selector += ', div[data-testid="messageEntry"], article';
+    else if (platform === "Poe") selector += ', [class*="Message_botMessage"], [class*="Message_humanMessage"]';
+    else if (platform === "Mistral") selector += ', div[class*="message"], div[class*="prose"]';
 
     const rawNodes = document.querySelectorAll(selector);
     const seen = new Set();
@@ -1442,6 +1610,11 @@
   // ==========================================
   let auditDebounce = null;
   const observer = new MutationObserver((mutations) => {
+    // Re-mount if detached by SPA/React virtual DOM hydration
+    if (isAI && !document.getElementById("alethex-root") && document.body) {
+      ensureMounted();
+    }
+
     const external = mutations.some(m => !m.target.closest || !m.target.closest("#alethex-root"));
     if (!external) return;
 
@@ -1451,7 +1624,7 @@
       clearTimeout(auditDebounce);
       auditDebounce = setTimeout(() => {
         runAudit(false);
-      }, 2500);
+      }, 1500);
     }
   });
 
@@ -1465,6 +1638,8 @@
   // ==========================================
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "ping") {
+      isAI = true;
+      ensureMounted();
       sendResponse({
         ok: true,
         version: "1.2.0",
@@ -1475,11 +1650,15 @@
       });
       return false;
     } else if (request.action === "audit_now") {
+      isAI = true;
+      ensureMounted();
       runAudit(true);
       if (!isDrawerOpen) toggleDrawer();
       sendResponse({ ok: true });
       return false;
     } else if (request.action === "open_drawer") {
+      isAI = true;
+      ensureMounted();
       soundEngine.playClick();
       if (!isDrawerOpen) toggleDrawer();
       sendResponse({ ok: true });
@@ -1511,27 +1690,54 @@
     });
   }
 
-  // Boot after document idle
-  setTimeout(() => {
+  // SPA navigation handling
+  window.addEventListener("popstate", () => {
+    if (isAI) ensureMounted();
+    setTimeout(() => { runAudit(false); }, 1000);
+  });
+
+  // ==========================================
+  // 14. Resilient Boot Sequence
+  // ==========================================
+  function boot() {
     try {
       chrome.storage.local.get(["highlightConflicts", "userTheme", "soundEnabled"], (res) => {
-        if (res.highlightConflicts !== undefined) isHighlightingEnabled = res.highlightConflicts;
-        if (res.userTheme) userThemeSetting = res.userTheme;
-        if (res.soundEnabled !== undefined) soundEngine.enabled = res.soundEnabled;
+        if (res && res.highlightConflicts !== undefined) isHighlightingEnabled = res.highlightConflicts;
+        if (res && res.userTheme) userThemeSetting = res.userTheme;
+        if (res && res.soundEnabled !== undefined) soundEngine.enabled = res.soundEnabled;
         renderDrawerSoundIcon();
         syncTheme();
       });
     } catch (e) {}
 
-    initDOM();
-    syncTheme();
-    initNLIWorker();
-    const turns = getTurnNodes();
-    lastMessageCount = turns.length;
-    runAudit(false);
+    if (isAI) {
+      ensureMounted();
+      syncTheme();
+      initNLIWorker();
+      const turns = getTurnNodes();
+      lastMessageCount = turns.length;
+      runAudit(false);
 
-    observer.observe(document.body, { childList: true, subtree: true });
-    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "data-theme", "data-color-mode"] });
-  }, 1000);
+      if (document.body) {
+        observer.observe(document.body, { childList: true, subtree: true });
+      }
+      if (document.documentElement) {
+        themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "data-theme", "data-color-mode"] });
+      }
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+
+  // Multi-phase mount checks for React hydration on ChatGPT, Claude, Gemini, etc.
+  if (isAI) {
+    setTimeout(ensureMounted, 300);
+    setTimeout(ensureMounted, 1000);
+    setTimeout(ensureMounted, 2500);
+  }
 
 })();
