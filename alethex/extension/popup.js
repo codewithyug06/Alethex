@@ -189,6 +189,106 @@ class AlethexAudioEngine {
   }
 }
 
+/**
+ * Resilient Tab Messaging Wrapper
+ * Always consumes chrome.runtime.lastError to eliminate "Unchecked runtime.lastError" warnings.
+ * Gracefully attempts dynamic script injection when on an active chat tab without a connected content script.
+ */
+function sendTabMessage(message, callback) {
+  try {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const queryErr = chrome.runtime.lastError;
+      if (queryErr || !tabs || !tabs[0] || !tabs[0].id) {
+        if (typeof callback === "function") {
+          callback(null, queryErr || new Error("No active tab found"));
+        }
+        return;
+      }
+
+      const activeTab = tabs[0];
+      const tabUrl = (activeTab.url || "").toLowerCase();
+
+      // Check for restricted internal browser URLs
+      const isRestricted =
+        tabUrl.startsWith("chrome://") ||
+        tabUrl.startsWith("edge://") ||
+        tabUrl.startsWith("about:") ||
+        tabUrl.startsWith("chrome-extension://") ||
+        tabUrl.startsWith("devtools://") ||
+        tabUrl.startsWith("view-source:") ||
+        tabUrl.startsWith("https://chrome.google.com/webstore") ||
+        tabUrl.startsWith("https://chromewebstore.google.com");
+
+      if (isRestricted) {
+        if (typeof callback === "function") {
+          callback(null, new Error("Restricted browser page"));
+        }
+        return;
+      }
+
+      chrome.tabs.sendMessage(activeTab.id, message, (response) => {
+        // ALWAYS read lastError to prevent Chrome from logging unchecked error
+        const sendErr = chrome.runtime.lastError;
+
+        if (sendErr) {
+          const errMsg = sendErr.message || "";
+          if (
+            (errMsg.includes("Receiving end does not exist") ||
+             errMsg.includes("Could not establish connection")) &&
+            chrome.scripting &&
+            typeof chrome.scripting.executeScript === "function"
+          ) {
+            try {
+              chrome.scripting.executeScript(
+                {
+                  target: { tabId: activeTab.id },
+                  files: ["content.js"]
+                },
+                () => {
+                  const injectErr = chrome.runtime.lastError;
+                  if (!injectErr) {
+                    setTimeout(() => {
+                      chrome.tabs.sendMessage(activeTab.id, message, (retryRes) => {
+                        const retryErr = chrome.runtime.lastError;
+                        if (typeof callback === "function") {
+                          callback(retryRes, retryErr || null);
+                        }
+                      });
+                    }, 180);
+                  } else {
+                    if (typeof callback === "function") {
+                      callback(null, sendErr);
+                    }
+                  }
+                }
+              );
+              return;
+            } catch (injectEx) {
+              if (typeof callback === "function") {
+                callback(null, sendErr);
+              }
+              return;
+            }
+          }
+
+          if (typeof callback === "function") {
+            callback(null, sendErr);
+          }
+          return;
+        }
+
+        if (typeof callback === "function") {
+          callback(response, null);
+        }
+      });
+    });
+  } catch (ex) {
+    if (typeof callback === "function") {
+      callback(null, ex);
+    }
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const siteEl = document.getElementById("site-name");
   const statusTag = document.getElementById("status-tag");
@@ -205,7 +305,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==========================================
   // 1. Theme Management (Auto / Light / Dark)
   // ==========================================
-  let currentThemeMode = "auto"; // "auto" | "light" | "dark"
+  let currentThemeMode = "auto";
 
   function renderThemeIcon(effectiveTheme) {
     if (effectiveTheme === "light") {
@@ -241,7 +341,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Load saved theme
   chrome.storage.local.get(["userTheme"], (data) => {
-    if (data.userTheme) {
+    if (data && data.userTheme) {
       currentThemeMode = data.userTheme;
     } else {
       currentThemeMode = "auto";
@@ -263,16 +363,10 @@ document.addEventListener("DOMContentLoaded", () => {
     applyTheme(currentThemeMode);
 
     // Notify active tab to synchronize theme
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs && tabs[0] && tabs[0].id) {
-        chrome.tabs.sendMessage(tabs[0].id, {
-          action: "set_theme",
-          theme: currentThemeMode
-        }, () => {
-          if (chrome.runtime.lastError) { /* ignore tab error */ }
-        });
-      }
-    });
+    sendTabMessage({
+      action: "set_theme",
+      theme: currentThemeMode
+    }, () => {});
   });
 
   // Listen for system theme changes when in auto mode
@@ -283,39 +377,99 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ==========================================
-  // 2. Active Platform Detection
+  // 2. Active Platform Detection & Connection
   // ==========================================
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    if (tabs && tabs[0] && tabs[0].url) {
-      const url = tabs[0].url.toLowerCase();
-      if (url.includes("chatgpt") || url.includes("openai")) {
-        siteEl.innerText = "ChatGPT Active";
-      } else if (url.includes("claude.ai")) {
-        siteEl.innerText = "Claude.ai Active";
-      } else if (url.includes("gemini.google")) {
-        siteEl.innerText = "Google Gemini Active";
-      } else if (url.includes("copilot.microsoft")) {
-        siteEl.innerText = "Copilot Active";
-      } else if (url.includes("deepseek")) {
-        siteEl.innerText = "DeepSeek Active";
-      } else if (url.includes("perplexity")) {
-        siteEl.innerText = "Perplexity Active";
-      } else if (url.includes("grok") || url.includes("x.com")) {
-        siteEl.innerText = "Grok Active";
-      } else if (url.includes("localhost") || url.includes("127.0.0.1")) {
-        siteEl.innerText = "Local AI WebUI";
-      } else if (url.startsWith("chrome://") || url.startsWith("edge://")) {
-        siteEl.innerText = "AI Platform Standby";
-        statusTag.innerText = "IDLE";
-        statusTag.style.background = "var(--border-subtle)";
-        statusTag.style.color = "var(--text-tertiary)";
-        statusTag.style.borderColor = "var(--border-subtle)";
-        dot.style.background = "var(--text-tertiary)";
-        dot.style.boxShadow = "none";
-      } else {
-        siteEl.innerText = "Universal AI Guard";
-      }
+  function updatePlatformUI(url, isConnected) {
+    url = (url || "").toLowerCase();
+    let platformName = "Universal AI Guard";
+    let isAIPage = false;
+
+    if (url.includes("chatgpt") || url.includes("openai")) {
+      platformName = "ChatGPT";
+      isAIPage = true;
+    } else if (url.includes("claude.ai")) {
+      platformName = "Claude.ai";
+      isAIPage = true;
+    } else if (url.includes("gemini.google")) {
+      platformName = "Google Gemini";
+      isAIPage = true;
+    } else if (url.includes("copilot.microsoft")) {
+      platformName = "Copilot";
+      isAIPage = true;
+    } else if (url.includes("deepseek")) {
+      platformName = "DeepSeek";
+      isAIPage = true;
+    } else if (url.includes("perplexity")) {
+      platformName = "Perplexity";
+      isAIPage = true;
+    } else if (url.includes("grok") || url.includes("x.com")) {
+      platformName = "Grok";
+      isAIPage = true;
+    } else if (url.includes("poe.com")) {
+      platformName = "Poe";
+      isAIPage = true;
+    } else if (url.includes("mistral")) {
+      platformName = "Mistral";
+      isAIPage = true;
+    } else if (url.includes("localhost") || url.includes("127.0.0.1")) {
+      platformName = "Local AI WebUI";
+      isAIPage = true;
+    } else if (
+      url.startsWith("chrome://") ||
+      url.startsWith("edge://") ||
+      url.startsWith("about:") ||
+      url.startsWith("chrome-extension://")
+    ) {
+      siteEl.innerText = "AI Platform Standby";
+      statusTag.innerText = "IDLE";
+      statusTag.className = "status-tag idle";
+      dot.className = "dot-pulse idle";
+      return;
     }
+
+    if (isConnected) {
+      siteEl.innerText = `${platformName} Active`;
+      statusTag.innerText = "ACTIVE";
+      statusTag.className = "status-tag";
+      dot.className = "dot-pulse";
+    } else if (isAIPage) {
+      siteEl.innerText = `${platformName} (Standby)`;
+      statusTag.innerText = "STANDBY";
+      statusTag.className = "status-tag standby";
+      dot.className = "dot-pulse standby";
+    } else {
+      siteEl.innerText = platformName;
+      statusTag.innerText = "STANDBY";
+      statusTag.className = "status-tag standby";
+      dot.className = "dot-pulse standby";
+    }
+  }
+
+  // Initial detection & live ping
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const qErr = chrome.runtime.lastError;
+    if (qErr || !tabs || !tabs[0]) {
+      updatePlatformUI("", false);
+      return;
+    }
+
+    const currentUrl = tabs[0].url || "";
+    updatePlatformUI(currentUrl, false);
+
+    sendTabMessage({ action: "ping" }, (response, pingErr) => {
+      if (!pingErr && response && response.ok) {
+        updatePlatformUI(currentUrl, true);
+        if (response.beliefsCount !== undefined && response.conflictsCount !== undefined) {
+          document.getElementById("stat-beliefs").innerText = response.beliefsCount;
+          const confEl = document.getElementById("stat-conflicts");
+          confEl.innerText = response.conflictsCount;
+          confEl.style.color = response.conflictsCount > 0 ? "var(--danger-text)" : "var(--success-text)";
+          updateConsistencyGauge(response.beliefsCount, response.conflictsCount);
+        }
+      } else {
+        updatePlatformUI(currentUrl, false);
+      }
+    });
   });
 
   // ==========================================
@@ -355,26 +509,21 @@ document.addEventListener("DOMContentLoaded", () => {
   chrome.storage.local.get(
     ["totalContradictionsBlocked", "activeBeliefsCount", "highlightConflicts", "soundEnabled"],
     (data) => {
-      const beliefs = data.activeBeliefsCount || 0;
-      const conflicts = data.totalContradictionsBlocked || 0;
+      const beliefs = (data && data.activeBeliefsCount) || 0;
+      const conflicts = (data && data.totalContradictionsBlocked) || 0;
 
       document.getElementById("stat-beliefs").innerText = beliefs;
       const confEl = document.getElementById("stat-conflicts");
       confEl.innerText = conflicts;
-
-      if (conflicts > 0) {
-        confEl.style.color = "var(--danger-text)";
-      } else {
-        confEl.style.color = "var(--success-text)";
-      }
+      confEl.style.color = conflicts > 0 ? "var(--danger-text)" : "var(--success-text)";
 
       updateConsistencyGauge(beliefs, conflicts);
 
-      if (data.highlightConflicts !== undefined) {
+      if (data && data.highlightConflicts !== undefined) {
         toggleHighlight.checked = data.highlightConflicts;
       }
 
-      const isSoundOn = data.soundEnabled !== false;
+      const isSoundOn = !data || data.soundEnabled !== false;
       if (toggleSound) {
         toggleSound.checked = isSoundOn;
       }
@@ -390,16 +539,10 @@ document.addEventListener("DOMContentLoaded", () => {
     audio.playClick();
     chrome.storage.local.set({ highlightConflicts: isChecked });
 
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs && tabs[0] && tabs[0].id) {
-        chrome.tabs.sendMessage(tabs[0].id, {
-          action: "toggle_highlights",
-          enabled: isChecked
-        }, () => {
-          if (chrome.runtime.lastError) { /* ignore */ }
-        });
-      }
-    });
+    sendTabMessage({
+      action: "toggle_highlights",
+      enabled: isChecked
+    }, () => {});
   });
 
   // ==========================================
@@ -415,24 +558,36 @@ document.addEventListener("DOMContentLoaded", () => {
         audio.playVerify();
       }
 
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        if (tabs && tabs[0] && tabs[0].id) {
-          chrome.tabs.sendMessage(tabs[0].id, {
-            action: "toggle_sound",
-            enabled: isChecked
-          }, () => {
-            if (chrome.runtime.lastError) { /* ignore */ }
-          });
-        }
-      });
+      sendTabMessage({
+        action: "toggle_sound",
+        enabled: isChecked
+      }, () => {});
     });
   }
 
   // ==========================================
   // 6. Audit Button
   // ==========================================
+  let isAuditing = false;
+
+  function resetAuditBtn() {
+    auditBtn.innerHTML = `
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
+        <path d="M21 3v5h-5"/>
+      </svg>
+      <span>Audit Conversation Consistency</span>
+    `;
+    auditBtn.style.opacity = "1";
+    auditBtn.disabled = false;
+    isAuditing = false;
+  }
+
   auditBtn.addEventListener("click", () => {
+    if (isAuditing) return;
+    isAuditing = true;
     audio.playAudit();
+
     auditBtn.innerHTML = `
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="animation: alethex-spin 1s linear infinite;">
         <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
@@ -440,31 +595,34 @@ document.addEventListener("DOMContentLoaded", () => {
       </svg>
       <span>Scanning Conversation...</span>
     `;
-    auditBtn.style.opacity = "0.75";
+    auditBtn.style.opacity = "0.85";
     auditBtn.disabled = true;
 
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs && tabs[0] && tabs[0].id) {
-        chrome.tabs.sendMessage(tabs[0].id, { action: "audit_now" }, () => {
-          setTimeout(() => {
-            auditBtn.innerHTML = `
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
-                <path d="M21 3v5h-5"/>
-              </svg>
-              <span>Audit Conversation Consistency</span>
-            `;
-            auditBtn.style.opacity = "1";
-            auditBtn.disabled = false;
-          }, 800);
-        });
-      } else {
-        auditBtn.innerText = "Audit Complete";
+    sendTabMessage({ action: "audit_now" }, (response, err) => {
+      if (!err && response && response.ok) {
         setTimeout(() => {
-          auditBtn.innerText = "Audit Conversation Consistency";
-          auditBtn.style.opacity = "1";
-          auditBtn.disabled = false;
-        }, 800);
+          resetAuditBtn();
+        }, 700);
+      } else {
+        // Tab not connected or restricted
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          const qErr = chrome.runtime.lastError;
+          const url = (!qErr && tabs && tabs[0] && tabs[0].url) ? tabs[0].url.toLowerCase() : "";
+          const isRestricted =
+            url.startsWith("chrome://") ||
+            url.startsWith("edge://") ||
+            url.startsWith("about:");
+
+          if (isRestricted) {
+            auditBtn.innerHTML = `<span>Active on AI chat pages</span>`;
+          } else {
+            auditBtn.innerHTML = `<span>Refresh tab to activate guard</span>`;
+          }
+
+          setTimeout(() => {
+            resetAuditBtn();
+          }, 2200);
+        });
       }
     });
   });
@@ -475,12 +633,15 @@ document.addEventListener("DOMContentLoaded", () => {
   openDrawerLink.addEventListener("click", (e) => {
     e.preventDefault();
     audio.playClick();
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs && tabs[0] && tabs[0].id) {
-        chrome.tabs.sendMessage(tabs[0].id, { action: "open_drawer" }, () => {
-          if (chrome.runtime.lastError) { /* ignore */ }
-          window.close(); // Close popup so user interacts with in-page drawer
-        });
+    sendTabMessage({ action: "open_drawer" }, (response, err) => {
+      if (!err && response && response.ok) {
+        window.close(); // Close popup so user interacts with in-page drawer
+      } else {
+        const originalText = openDrawerLink.innerText;
+        openDrawerLink.innerText = "Available on AI chat pages";
+        setTimeout(() => {
+          openDrawerLink.innerHTML = "Open Inspector Drawer &rarr;";
+        }, 2200);
       }
     });
   });

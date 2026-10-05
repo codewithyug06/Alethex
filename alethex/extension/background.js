@@ -80,6 +80,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       }
     );
     sendResponse({ ok: true });
-    return true;
+    return false;
   }
 });

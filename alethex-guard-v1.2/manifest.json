@@ -21,7 +21,8 @@
   },
   "permissions": [
     "storage",
-    "activeTab"
+    "activeTab",
+    "scripting"
   ],
   "host_permissions": [
     "https://chatgpt.com/*",
@@ -57,7 +58,9 @@
         "https://poe.com/*",
         "https://chat.mistral.ai/*",
         "https://huggingface.co/chat/*",
-        "https://x.com/i/grok/*"
+        "https://x.com/i/grok/*",
+        "http://localhost:*/*",
+        "http://127.0.0.1:*/*"
       ],
       "js": ["content.js"],
       "run_at": "document_idle"

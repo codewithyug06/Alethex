@@ -6,7 +6,13 @@
  */
 
 (function () {
-  if (window.__ALETHEX_GUARD_INITIALIZED__) return;
+  if (window.__ALETHEX_GUARD_INITIALIZED__) {
+    try {
+      if (chrome.runtime && chrome.runtime.id) {
+        return;
+      }
+    } catch (e) {}
+  }
   window.__ALETHEX_GUARD_INITIALIZED__ = true;
 
   // Platform detection
@@ -1421,6 +1427,8 @@
         turns: 1,
         conflicts: currentConflicts.length,
         activeBeliefs: currentBeliefs.length
+      }, () => {
+        if (chrome.runtime.lastError) { /* ignore */ }
       });
     } catch (e) {}
 
@@ -1456,28 +1464,43 @@
   // 13. Chrome Runtime Message Listener
   // ==========================================
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action === "audit_now") {
+    if (request.action === "ping") {
+      sendResponse({
+        ok: true,
+        version: "1.2.0",
+        platform: platform,
+        beliefsCount: currentBeliefs.length,
+        conflictsCount: currentConflicts.length,
+        isDrawerOpen: isDrawerOpen
+      });
+      return false;
+    } else if (request.action === "audit_now") {
       runAudit(true);
       if (!isDrawerOpen) toggleDrawer();
       sendResponse({ ok: true });
+      return false;
     } else if (request.action === "open_drawer") {
       soundEngine.playClick();
       if (!isDrawerOpen) toggleDrawer();
       sendResponse({ ok: true });
+      return false;
     } else if (request.action === "toggle_highlights") {
       isHighlightingEnabled = !!request.enabled;
       applyHighlights();
       if (isDrawerOpen) updateDrawerUI();
       sendResponse({ ok: true });
+      return false;
     } else if (request.action === "toggle_sound") {
       soundEngine.enabled = !!request.enabled;
       renderDrawerSoundIcon();
       if (soundEngine.enabled) soundEngine.playVerify();
       sendResponse({ ok: true });
+      return false;
     } else if (request.action === "set_theme") {
       userThemeSetting = request.theme || "auto";
       syncTheme();
       sendResponse({ ok: true });
+      return false;
     }
   });
 

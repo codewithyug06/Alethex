@@ -217,6 +217,30 @@
       padding: 2px 7px;
       border-radius: 6px;
       letter-spacing: 0.3px;
+      transition: all 0.2s ease;
+    }
+    .status-tag.standby {
+      background: var(--warning-subtle);
+      color: var(--warning-text);
+      border-color: rgba(245, 158, 11, 0.25);
+    }
+    .status-tag.idle {
+      background: var(--border-subtle);
+      color: var(--text-tertiary);
+      border-color: var(--border-subtle);
+    }
+    .dot-pulse.standby {
+      background: var(--warning);
+    }
+    .dot-pulse.standby::after {
+      border-color: var(--warning);
+    }
+    .dot-pulse.idle {
+      background: var(--text-tertiary);
+      box-shadow: none;
+    }
+    .dot-pulse.idle::after {
+      display: none;
     }
 
     /* Stats Grid */
