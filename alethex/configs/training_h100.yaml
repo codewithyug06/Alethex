@@ -7,9 +7,9 @@
 # Run a smoke test on the cloud box first (same as the laptop) to get a *real* measured
 # throughput before trusting any time estimate -- untested comments are exactly what caused the
 # ~4.4h/epoch laptop estimate to be wrong by ~10x.
-model_name: "cross-encoder/nli-deberta-v3-large"
+model_name: "cross-encoder/nli-deberta-v3-small"
 epochs: 3
-batch_size: 128
+batch_size: 256
 grad_accum: 1
 learning_rate: 1.0e-5
 save_steps: 500

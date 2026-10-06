@@ -1,15 +1,13 @@
 # NLI fine-tuning defaults for the laptop GPU (RTX 4050, 6.4GB VRAM). Override via --config.
-model_name: "cross-encoder/nli-deberta-v3-large"
-# 3 epochs: the base model is already NLI-pretrained (SNLI+MultiNLI), so this run is
-# domain-adaptation, not from-scratch training.
-# The "~4.4h/epoch" this comment previously claimed was never actually measured and was wrong --
-# the real measured throughput on this GPU (smoke test, 2026-09-30) was 7.72 samples/sec, which
-# puts the full 3-epoch / 1.33M-pair run at roughly 143 hours (~6 days), not ~13.5h. See
-# configs/training_h100.yaml for the much faster cloud-GPU profile used instead of waiting that out.
-# Raise to 4-5 if the eval curve in the generated report is still improving at epoch 3.
+# nli-deberta-v3-SMALL: 22M params (vs 400M for -large).
+# Estimated laptop throughput: ~55-70 samples/sec -> full run ~7-9h on RTX 4050.
+# Same checkpoint used in the browser extension (nli_worker.js) — fine-tuning it directly
+# means you can export ONNX after training and drop it into the extension to make in-browser
+# detection smarter without touching any other code.
+model_name: "cross-encoder/nli-deberta-v3-small"
 epochs: 3
-batch_size: 8
-grad_accum: 2
+batch_size: 32
+grad_accum: 1
 learning_rate: 1.0e-5
 save_steps: 500
 per_device_eval_batch_size: 16
