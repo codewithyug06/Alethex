@@ -24,7 +24,7 @@ function getModel() {
 
   self.postMessage({ type: "status", message: "Loading NLI model — first time takes ~30s, then cached forever." });
 
-  loadPromise = pipeline("zero-shot-classification", "Xenova/nli-deberta-v3-small", { quantized: true })
+  loadPromise = pipeline("zero-shot-classification", "codewithyug/alethex-nli-deberta-v3-small", { quantized: true })
     .then((model) => {
       clf = model;
       loadPromise = null;

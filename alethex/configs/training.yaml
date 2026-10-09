@@ -1,25 +1,29 @@
-# NLI fine-tuning defaults for the laptop GPU (RTX 4050, 6.4GB VRAM). Override via --config.
-# nli-deberta-v3-SMALL: 22M params (vs 400M for -large).
-# Estimated laptop throughput: ~55-70 samples/sec -> full run ~7-9h on RTX 4050.
-# Same checkpoint used in the browser extension (nli_worker.js) — fine-tuning it directly
-# means you can export ONNX after training and drop it into the extension to make in-browser
-# detection smarter without touching any other code.
-model_name: "cross-encoder/nli-deberta-v3-small"
+# NLI fine-tuning profile for 8x H100 80GB (640GB total VRAM, Hopper architecture).
+# Model: nli-deberta-v3-LARGE (400M params) — best quality DeBERTa NLI model.
+# BF16 is native on Hopper; no gradient checkpointing needed (VRAM is not the constraint).
+# Effective batch = per_device_train_batch_size(256) * 8 GPUs * grad_accum(1) = 2048.
+# Full 3-epoch run expected ~30-60 min on 8x H100.
+# Run with: torchrun --nproc_per_node=8 -m alethex.training.train_nli
+model_name: "cross-encoder/nli-deberta-v3-large"
 epochs: 3
-batch_size: 32
+batch_size: 256
 grad_accum: 1
-learning_rate: 1.0e-5
-save_steps: 500
-per_device_eval_batch_size: 16
-eval_accumulation_steps: 10
+learning_rate: 2.0e-5
+save_steps: 200
+per_device_eval_batch_size: 256
+eval_accumulation_steps: 4
 weight_decay: 0.01
-warmup_ratio: 0.1
+warmup_ratio: 0.06
 save_total_limit: 3
-logging_steps: 100
-logging_steps_test_mode: 50
-optimizer: "adamw_bnb_8bit"
-test_batch_size: 4
+logging_steps: 50
+logging_steps_test_mode: 10
+optimizer: "adamw_torch"
+test_batch_size: 32
 test_grad_accum: 1
+# H100 Hopper: bf16 is native (no tensor-core overhead vs fp16). No VRAM pressure.
+fp16: false
+bf16: true
+gradient_checkpointing: false
 # Dataset paths, relative to ALETHEX_HOME (defaults to repo root).
 preprocessed_train: "dataset/preprocessed/nli/unified/train.jsonl"
 preprocessed_validation: "dataset/preprocessed/nli/unified/validation.jsonl"
@@ -27,6 +31,6 @@ fallback_datasets:
   - "dataset/tasksource_temporal-nli/train.jsonl"
   - "dataset/stanfordnlp_snli/train.jsonl"
   - "dataset/nyu-mll_multi_nli/train.jsonl"
-output_dir: "models/alethex-nli"
-results_dir: "results/training_3_epochs"
+output_dir: "models/alethex-nli-large"
+results_dir: "results/training_large_3_epochs"
 

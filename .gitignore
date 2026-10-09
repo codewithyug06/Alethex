@@ -9,11 +9,14 @@
 # Specification PDFs & raw text extractions
 *.pdf
 extracted_spec.txt
-alethex/paper/
-alethex/results/
+**/paper/
+paper/
+**/results/
+results/
 
 # Large ML model checkpoints & weights (>100MB breaks GitHub push limit)
-alethex/models/
+**/models/
+models/
 *.onnx
 *.safetensors
 *.bin
@@ -22,7 +25,8 @@ alethex/models/
 *.h5
 
 # Large preprocessed and raw datasets
-alethex/dataset/
+**/dataset/
+dataset/
 *.jsonl
 *.csv
 
@@ -38,9 +42,12 @@ htmlcov/
 *.egg-info/
 build/
 output/
+**/output/
 scratch/
+**/scratch/
 test_output*/
 logs/
+*.log
 
 # Shell typo / stray artifacts
 45%
