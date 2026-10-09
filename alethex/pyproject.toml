@@ -20,7 +20,10 @@ dependencies = [
     "pytest",
     "pyyaml",
     "rich",
-    "python-dateutil"
+    "python-dateutil",
+    "datasets",
+    "scikit-learn",
+    "onnxruntime"
 ]
 readme = "README.md"
 requires-python = ">= 3.9"

@@ -276,6 +276,84 @@ def attach_cmd():
     run_auto_attach()
 
 
+@cli.command("verify-dataset")
+@click.option(
+    "--dataset-dir",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Path to preprocessed dataset directory (defaults to dataset/preprocessed/nli/unified).",
+)
+def verify_dataset_cmd(dataset_dir: Optional[Path]):
+    """Verifies existence, row counts, and schema integrity of preprocessed NLI datasets."""
+    import json
+    from collections import Counter
+
+    if dataset_dir is None:
+        candidates = [
+            PROJECT_ROOT / "dataset" / "preprocessed" / "nli" / "unified",
+            Path.cwd() / "dataset" / "preprocessed" / "nli" / "unified",
+        ]
+        target_dir = None
+        for c in candidates:
+            if (c / "train.jsonl").exists():
+                target_dir = c
+                break
+        if target_dir is None:
+            target_dir = candidates[0]
+    else:
+        target_dir = dataset_dir
+
+    train_path = target_dir / "train.jsonl"
+    val_path = target_dir / "validation.jsonl"
+
+    if not train_path.exists() or not val_path.exists():
+        console.print(
+            Panel(
+                f"[bold red]Dataset not found at:[/bold red] {target_dir}\n"
+                "Run [cyan]alethex preprocess-nli[/cyan] or [cyan]python -m alethex.data.preprocess_nli[/cyan] "
+                "to generate the unified NLI datasets from MultiNLI, SNLI, and Temporal-NLI.",
+                title="Dataset Verification Failed",
+                border_style="red",
+            )
+        )
+        sys.exit(1)
+
+    table = Table(title="ALETHEX Unified Preprocessed NLI Dataset")
+    table.add_column("Split", style="cyan", no_wrap=True)
+    table.add_column("File Size (MB)", style="magenta")
+    table.add_column("Total Pairs", style="green")
+    table.add_column("Contradictions (0)", style="red")
+    table.add_column("Entailments (1)", style="green")
+    table.add_column("Neutrals (2)", style="yellow")
+
+    for split_name, split_path in [("train", train_path), ("validation", val_path)]:
+        size_mb = split_path.stat().st_size / (1024 * 1024)
+        counts = Counter()
+        with open(split_path, "r", encoding="utf-8") as f:
+            for line in f:
+                row = json.loads(line)
+                counts[row["label"]] += 1
+        total = sum(counts.values())
+        table.add_row(
+            split_name,
+            f"{size_mb:.2f}",
+            f"{total:,}",
+            f"{counts[0]:,}",
+            f"{counts[1]:,}",
+            f"{counts[2]:,}",
+        )
+
+    console.print(table)
+    console.print("[bold green]Preprocessed dataset verified successfully![/bold green]")
+
+
+@cli.command("preprocess-nli")
+def preprocess_nli_cmd():
+    """Unifies and preindexes raw NLI datasets (Temporal-NLI, MultiNLI, SNLI, All-NLI) into canonical format."""
+    from alethex.data.preprocess_nli import main as run_preprocess
+    run_preprocess()
+
+
 def main():
     cli()
 

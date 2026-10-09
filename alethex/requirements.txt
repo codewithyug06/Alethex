@@ -17,3 +17,6 @@ pytest
 pyyaml
 rich
 python-dateutil
+datasets
+scikit-learn
+onnxruntime
