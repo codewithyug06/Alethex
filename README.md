@@ -1043,6 +1043,12 @@ Alethex/
     |   |   |-- onnx_exporter.py          # Dynamic INT8 ONNX conversion pipeline
     |   |   `-- onnx_pipeline.py          # High-performance ONNX Runtime inference engine
     |   |
+    |   |-- data/                         # NLI Dataset Downloader & Preprocessor Subsystem
+    |   |   |-- preprocess_nli.py         # Unifies MultiNLI, SNLI, Temporal-NLI & All-NLI into canonical 3-way format
+    |   |   |-- download_datasets.py      # HuggingFace automated multi-corpus downloader
+    |   |   |-- export_datasets.py        # Raw JSONL dataset split exporter
+    |   |   `-- synthetic_benchmark/      # Algorithmic benchmark synthesis generator
+    |   |
     |   |-- training/                     # Distillation and Model Fine-Tuning
     |   |   |-- distill.py                # Student distillation trainer (ALETHEX-Mini)
     |   |   `-- train_nli.py              # Supervised fine-tuning for cross-encoder NLI
@@ -1052,7 +1058,7 @@ Alethex/
     |       `-- dashboard/
     |           `-- app.py                # FastAPI visualization server
     |
-    `-- tests/                            # Test Suite (48 Unit & Integration Tests)
+    `-- tests/                            # Test Suite (Unit & Integration Tests)
         |-- test_api.py                   # High-level Python API tests
         |-- test_pipeline.py              # Full 8-stage canonical pipeline tests
         |-- test_graph.py                 # Belief graph and revision semantics tests
@@ -1068,6 +1074,7 @@ Alethex/
         |-- test_context_memory.py        # Memory compression and injection tests
         |-- test_distill.py               # Model distillation harness tests
         |-- test_reporting_export.py      # Report export format tests
+        |-- test_preprocess_nli.py        # MultiNLI / SNLI preprocessing and data integrity tests
         `-- test_run_real_dataset.py      # Real-world benchmark dataset evaluation tests
 ```
 
@@ -1096,8 +1103,39 @@ python -m pytest tests/ -v
 - **`test_onnx_inference.py`**: Verifies that the INT8 quantized ONNX runtime produces relation probabilities within numerical tolerance of the FP32 PyTorch baseline.
 - **`test_integrations.py`**: Verifies compatibility with LangChain memory interfaces and LlamaIndex node postprocessors.
 - **`test_universal_rag.py`**: Tests chunk suppression and annotation across simulated vector database outputs.
+- **`test_preprocess_nli.py`**: Verifies MultiNLI / SNLI / Temporal-NLI canonical label remapping, schema transformations, and on-disk file integrity.
 
 ---
+
+## Dataset Preprocessing & NLI Fine-Tuning Corpus (MultiNLI / SNLI / Temporal-NLI)
+
+ALETHEX includes an end-to-end multi-corpus ingestion and preprocessing subsystem located in [`alethex/alethex/data/preprocess_nli.py`](file:///D:/Projects/Notes/Text%20Analytics%20Project/alethex/alethex/data/preprocess_nli.py) (with top-level runner [`alethex/preprocess_nli.py`](file:///D:/Projects/Notes/Text%20Analytics%20Project/alethex/preprocess_nli.py)) that unifies four leading NLI benchmarks:
+- **MultiNLI (`nyu-mll/multi_nli`)**: Complex premise-hypothesis pairs spanning 10 distinct dialogue, spoken, and written genres.
+- **SNLI (`stanfordnlp/snli`)**: High-agreement crowd-sourced image caption entailments and contradictions.
+- **Temporal-NLI (`tasksource/temporal-nli`)**: Strict time-interval and temporal-drift logic pairs.
+- **All-NLI (`sentence-transformers/all-nli`)**: Extended positive entailment grounding pairs.
+
+### Canonical Label Alignment
+Raw MultiNLI and SNLI define labels as `0: entailment, 1: neutral, 2: contradiction`. ALETHEX explicitly normalizes all sources into the pretrained `cross-encoder/nli-deberta-v3-large` canonical head format:
+- **`0`**: Contradiction
+- **`1`**: Entailment
+- **`2`**: Neutral
+
+Unlabeled examples (e.g., SNLI consensus label `-1`) are automatically filtered out.
+
+### Verifying and Running Preprocessing
+```bash
+# Verify existing preprocessed dataset integrity, pair counts, and class splits:
+python -m alethex.cli verify-dataset
+
+# Run automated unit tests verifying preprocessing transformations:
+python -m pytest tests/test_preprocess_nli.py -v
+
+# Execute preprocessing from raw sources:
+python alethex/preprocess_nli.py
+# or via package module:
+python -m alethex.data.preprocess_nli
+```
 
 ## Citation
 
