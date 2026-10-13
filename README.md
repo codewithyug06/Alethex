@@ -17,6 +17,18 @@
   <a href="dist/alethex-extension-v1.0.0.zip"><img src="https://img.shields.io/badge/Chrome%20Extension-v1.2.0%20MV3-informational.svg" alt="Chrome Extension" /></a>
 </p>
 
+<p align="center">
+  <a href="https://pypi.org/project/alethex/"><strong>Official PyPI</strong></a> &nbsp;|&nbsp;
+  <a href="https://huggingface.co/codewithyug/alethex-nli-deberta-v3-large"><strong>Flagship Model (DeBERTa-v3-Large)</strong></a> &nbsp;|&nbsp;
+  <a href="https://huggingface.co/codewithyug/alethex-nli-deberta-v3-small"><strong>Lightweight Model (DeBERTa-v3-Small)</strong></a>
+</p>
+
+> [!IMPORTANT]
+> **Official Distribution Channels:**
+> - **Official PyPI:** [https://pypi.org/project/alethex/](https://pypi.org/project/alethex/) (`pip install alethex`)
+> - **Flagship Model (400M params, 92.8% Acc, 8x H100 trained):** [https://huggingface.co/codewithyug/alethex-nli-deberta-v3-large](https://huggingface.co/codewithyug/alethex-nli-deberta-v3-large)
+> - **Lightweight Model (22M params, 172MB ONNX, edge-ready):** [https://huggingface.co/codewithyug/alethex-nli-deberta-v3-small](https://huggingface.co/codewithyug/alethex-nli-deberta-v3-small)
+
 ---
 
 ## Table of Contents
