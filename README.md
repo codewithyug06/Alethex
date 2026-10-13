@@ -1,8 +1,4 @@
-<p align="center">
-  <img src="assets/icon.png" alt="ALETHEX Logo" width="120" />
-</p>
-
-<h1 align="center">ALETHEX — Temporal Belief Consistency Engine</h1>
+# ALETHEX — Temporal Belief Consistency Engine
 
 <p align="center">
   <strong>Catch AI self-contradictions and temporal drift in real time across chat sessions, RAG retrieval pipelines, and long-horizon agent memory stores.</strong>
@@ -307,9 +303,6 @@ The ALETHEX Chrome Extension (Manifest V3) runs silently alongside popular AI ch
   - 🟡 `0.5 ≤ CI < 1.0`: Facts updated or superseded over time.
   - 🔴 `CI < 0.5`: Active, unresolved factual contradiction!
 
-<div align="center">
-  <img src="assets/icon.png" width="80" alt="ALETHEX Extension Icon" />
-</div>
 
 ### Installing the Extension
 
