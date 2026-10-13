@@ -19,16 +19,16 @@
 
 ---
 
-## 📌 Table of Contents
+## Table of Contents
 
 - [Overview & The Problem Solved](#overview--the-problem-solved)
-- [Official PyPI Package](#-official-pypi-package)
-- [Hugging Face NLI Models](#-hugging-face-nli-models)
-- [System Architecture](#-system-architecture)
-- [Enterprise GPU Training on 8x NVIDIA H100 80GB](#-enterprise-gpu-training-on-8x-nvidia-h100-80gb)
-- [Empirical Benchmarks & Paper Results](#-empirical-benchmarks--paper-results)
-- [Chrome Extension (Universal Truth Guard)](#-chrome-extension-universal-truth-guard)
-- [Python SDK & Framework Integrations](#-python-sdk--framework-integrations)
+- [Official PyPI Package](#official-pypi-package)
+- [Hugging Face NLI Models](#hugging-face-nli-models)
+- [System Architecture](#system-architecture)
+- [Enterprise GPU Training on 8x NVIDIA H100 80GB](#enterprise-gpu-training-on-8x-nvidia-h100-80gb)
+- [Empirical Benchmarks & Paper Results](#empirical-benchmarks--paper-results)
+- [Chrome Extension (Universal Truth Guard)](#chrome-extension-universal-truth-guard)
+- [Python SDK & Framework Integrations](#python-sdk--framework-integrations)
   - [Core Quickstart](#core-quickstart)
   - [Turn-by-Turn Online Session Tracking](#turn-by-turn-online-session-tracking)
   - [Universal RAG Middleware](#universal-rag-middleware)
@@ -36,12 +36,11 @@
   - [LlamaIndex Temporal Node Postprocessor](#llamaindex-temporal-node-postprocessor)
   - [Model Context Protocol (MCP) Server](#model-context-protocol-mcp-server)
   - [Universal OpenAI Reverse Proxy](#universal-openai-reverse-proxy)
-- [CLI Reference](#-cli-reference)
-- [ONNX Export & Quantization](#-onnx-export--quantization)
-- [Repository Structure](#-repository-structure)
-- [Testing & Verification](#-testing--verification)
-- [Citation](#-citation)
-- [License & Authors](#-license--authors)
+- [CLI Reference](#cli-reference)
+- [ONNX Export & Quantization](#onnx-export--quantization)
+- [Repository Structure](#repository-structure)
+- [Testing & Verification](#testing--verification)
+- [License & Authors](#license--authors)
 
 ---
 
@@ -69,7 +68,7 @@ Document Stream  ──► Allen's Algebra   ──► Staged NLI Classifier   �
 
 ---
 
-## 📦 Official PyPI Package
+## Official PyPI Package
 
 ALETHEX is officially published on PyPI. You can install it directly:
 
@@ -103,7 +102,7 @@ pip install -e ".[dev,langchain,llamaindex]"
 
 ---
 
-## 🤗 Hugging Face NLI Models
+## Hugging Face NLI Models
 
 ALETHEX provides two specialized cross-encoder models fine-tuned on a curated corpus of over **1,000,000+ factual and temporal pairs** (MultiNLI + SNLI + Temporal-NLI) with zero synthetic label noise:
 
@@ -147,7 +146,7 @@ print(f"Prediction: {predicted_label} (Confidence: {probs[0]:.4f})")
 
 ---
 
-## 🏛️ System Architecture
+## System Architecture
 
 <p align="center">
   <img src="assets/fig1_architecture.png" alt="ALETHEX Full System Architecture Pipeline" width="95%" />
@@ -187,7 +186,7 @@ ALETHEX executes a 5-stage factual reconciliation pipeline:
 
 ---
 
-## ⚡ Enterprise GPU Training on 8x NVIDIA H100 80GB
+## Enterprise GPU Training on 8x NVIDIA H100 80GB
 
 The flagship model (`alethex-nli-deberta-v3-large`) was trained on a dedicated enterprise cluster of **8x NVIDIA H100 SXM5 80GB** GPUs provisioned through Brev.dev compute, using Distributed Data Parallelism (DDP) with BF16 mixed precision and an effective batch size of 2,048.
 
@@ -243,7 +242,7 @@ PY
 
 ---
 
-## 📊 Empirical Benchmarks & Paper Results
+## Empirical Benchmarks & Paper Results
 
 ### 1. 3-Way Relation Classification Performance
 
@@ -289,7 +288,7 @@ Deploying cross-encoders across combinatorial claim pairs is made practical thro
 
 ---
 
-## 🌐 Chrome Extension (Universal Truth Guard)
+## Chrome Extension (Universal Truth Guard)
 
 The ALETHEX Chrome Extension (Manifest V3) runs silently alongside popular AI chat interfaces to flag contradictions the moment an LLM generates them:
 
@@ -323,7 +322,7 @@ The ALETHEX Chrome Extension (Manifest V3) runs silently alongside popular AI ch
 
 ---
 
-## 💻 Python SDK & Framework Integrations
+## Python SDK & Framework Integrations
 
 ### Core Quickstart
 
@@ -463,7 +462,7 @@ python -m alethex.cli proxy --port 8000 --upstream http://localhost:11434/v1
 
 ---
 
-## 🛠️ CLI Reference
+## CLI Reference
 
 The official CLI (`alethex` or `python -m alethex.cli`) provides built-in tools for batch auditing, benchmarking, streaming, and dashboarding:
 
@@ -495,7 +494,7 @@ alethex attach
 
 ---
 
-## 🚀 ONNX Export & Quantization
+## ONNX Export & Quantization
 
 To export any fine-tuned PyTorch checkpoint into dynamic-shape ONNX and dynamic INT8:
 
@@ -512,7 +511,7 @@ Output directory contains:
 
 ---
 
-## 📂 Repository Structure
+## Repository Structure
 
 ```
 alethex/
@@ -565,7 +564,7 @@ alethex/
 
 ---
 
-## 🧪 Testing & Verification
+## Testing & Verification
 
 Run the full automated test suite:
 
@@ -588,23 +587,7 @@ All 21 test suites cover:
 
 ---
 
-## 📖 Citation
-
-If you use ALETHEX, its temporal belief graph formulation, or the fine-tuned DeBERTa-v3 models in your research, please cite:
-
-```bibtex
-@misc{alethex2026,
-  title  = {ALETHEX: Corpus-Scale Temporal Belief Consistency and Contradiction Detection for Persistent LLM Memory Systems},
-  author = {Yugendhar S},
-  year   = {2026},
-  url    = {https://github.com/codewithyug/alethex},
-  note   = {Available on PyPI: alethex, Hugging Face: codewithyug/alethex-nli-deberta-v3-large}
-}
-```
-
----
-
-## 📜 License & Authors
+## License & Authors
 
 - **Author:** [Yugendhar S](https://github.com/codewithyug) (jeevithamproject@gmail.com)
 - **License:** [Apache License 2.0](LICENSE) — free for both academic and commercial use.
