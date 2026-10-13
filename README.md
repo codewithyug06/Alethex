@@ -696,7 +696,7 @@ All 21 test suites cover:
 
 ## License & Authors
 
-- **Author:** [Yugendhar S](https://github.com/codewithyug) 
+- **Author:** [Yugendhar S](https://github.com/codewithyug06) 
 - **License:** [Apache License 2.0](LICENSE) — free for both academic and commercial use.
 - **Official PyPI:** [`pip install alethex`](https://pypi.org/project/alethex/)
 - **Hugging Face Hub:**
