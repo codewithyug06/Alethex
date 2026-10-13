@@ -1,0 +1,46 @@
+{"source_id": "7d1e9696-ee82-4198-ad6e-7194a54de291", "timestamp": "2023-01-01T00:00:00", "text": "User_0 lives in CA."}
+{"source_id": "fae71021-1708-48f9-85eb-3298bb9b5b74", "timestamp": "2023-01-16T00:00:00", "text": "User_0 uses Windows."}
+{"source_id": "29b8415b-e9ef-48d9-af19-d94c163fa174", "timestamp": "2023-01-01T00:00:00", "text": "I think User_0 uses iOS."}
+{"source_id": "d5b45223-f78e-426c-b28b-13cc176ae450", "timestamp": "2023-02-16T00:00:00", "text": "As far as I know, User_0 uses Android."}
+{"source_id": "1f8a8e4b-1698-4a7a-9a5b-2dbd2e1967b6", "timestamp": "2023-10-18T00:00:00", "text": "As far as I know, User_0 uses Mac."}
+{"source_id": "ddc4e4a7-3366-477c-b6cc-18f2cab277ca", "timestamp": "2023-01-01T00:00:00", "text": "As far as I know, User_0 works at Apple."}
+{"source_id": "167a7589-31e8-4726-97c5-28369b4c4511", "timestamp": "2023-05-21T00:00:00", "text": "As far as I know, User_0 works at Google."}
+{"source_id": "1a642a3d-8431-4818-9aa9-de488237f343", "timestamp": "2023-01-01T00:00:00", "text": "It is a known fact that User_1 likes tacos."}
+{"source_id": "646c6505-9174-4cb2-8efb-459222632ec9", "timestamp": "2023-04-04T00:00:00", "text": "As far as I know, User_1 likes pizza."}
+{"source_id": "bd5cae35-1006-4ba1-9e61-16f59f76414a", "timestamp": "2023-10-01T00:00:00", "text": "User_1 likes pasta."}
+{"source_id": "83a37f98-b814-4306-99e0-9dac461db896", "timestamp": "2023-01-01T00:00:00", "text": "I think User_1 lives in CA."}
+{"source_id": "0314efa9-9979-4729-9022-668ef4d610d4", "timestamp": "2023-06-28T00:00:00", "text": "As far as I know, User_1 lives in NY."}
+{"source_id": "ae9b6b24-8bf1-4bf9-bd1d-2382a76e0520", "timestamp": "2024-02-07T00:00:00", "text": "As far as I know, User_1 lives in CA."}
+{"source_id": "b9c73dcc-ce7b-4da2-9e23-1bcac3e3a5c6", "timestamp": "2023-01-01T00:00:00", "text": "As far as I know, User_2 lives in CA."}
+{"source_id": "4169f24b-b8b9-4300-9bd0-08d54dc194fc", "timestamp": "2023-04-24T00:00:00", "text": "User_2 lives in Tokyo."}
+{"source_id": "a36459a1-68b3-4f95-9427-252143894984", "timestamp": "2023-09-13T00:00:00", "text": "It is a known fact that User_2 lives in CA."}
+{"source_id": "85a3a1f1-7200-476f-9422-0b1a3da173aa", "timestamp": "2023-01-01T00:00:00", "text": "As far as I know, User_2 likes pizza."}
+{"source_id": "edbd8d37-5d26-475b-a417-9f2c1e82f86d", "timestamp": "2023-05-19T00:00:00", "text": "It is a known fact that User_2 likes sushi."}
+{"source_id": "07169207-9c5d-4486-a636-81dff37bb455", "timestamp": "2023-01-01T00:00:00", "text": "As far as I know, User_2 uses Linux."}
+{"source_id": "d4aed8d2-45e7-4c05-8baa-3bd074807f45", "timestamp": "2023-01-01T00:00:00", "text": "User_3 uses Windows."}
+{"source_id": "080a161b-c61f-4602-b98f-9a9397392a28", "timestamp": "2023-04-11T00:00:00", "text": "I think User_3 uses Mac."}
+{"source_id": "50c73db0-70c5-4901-8706-2ea2dfd66b28", "timestamp": "2023-01-01T00:00:00", "text": "It is a known fact that User_3 likes tacos."}
+{"source_id": "21c9f6b4-9285-478e-97ff-ccce4b352bcb", "timestamp": "2023-03-04T00:00:00", "text": "User_3 likes pasta."}
+{"source_id": "bd3e7c3c-1984-4929-be15-9741dade26c5", "timestamp": "2023-08-09T00:00:00", "text": "As far as I know, User_3 likes pizza."}
+{"source_id": "8e3c456d-3bff-467e-bac0-e6e03b7d9217", "timestamp": "2023-01-01T00:00:00", "text": "User_3 works at Microsoft."}
+{"source_id": "9e063b16-6d90-4ed6-bb99-b7b4186549fc", "timestamp": "2023-01-01T00:00:00", "text": "I think User_4 likes pizza."}
+{"source_id": "20acd0fa-b7fd-4761-afd2-20e4126a6831", "timestamp": "2023-07-02T00:00:00", "text": "User_4 likes sushi."}
+{"source_id": "99e19571-6e4d-4a58-a9ab-7c905464c8f5", "timestamp": "2024-02-08T00:00:00", "text": "User_4 likes pasta."}
+{"source_id": "f279f5eb-516f-4999-833b-75e95fef1c00", "timestamp": "2023-01-23T00:00:00", "text": "It is a known fact that User_4 uses Mac."}
+{"source_id": "537ac9d9-f3cb-4a1b-83e1-c2eceafb36db", "timestamp": "2023-01-01T00:00:00", "text": "User_4 uses Linux."}
+{"source_id": "b14994bd-93b6-43f3-a5f1-a975a84af61c", "timestamp": "2023-08-12T00:00:00", "text": "I think User_4 uses iOS."}
+{"source_id": "3f0f26be-d165-47d6-b6c0-68c4bf101103", "timestamp": "2023-06-02T00:00:00", "text": "As far as I know, User_4 uses Android."}
+{"source_id": "4c3c6c6d-ee52-4577-8e77-29897f67219f", "timestamp": "2023-01-01T00:00:00", "text": "I think User_4 lives in Tokyo."}
+{"source_id": "a2a2051d-0bcf-4e4b-8698-608e1aa790f5", "timestamp": "2023-09-04T00:00:00", "text": "As far as I know, User_4 lives in TX."}
+{"source_id": "99499bb6-445c-4c12-b00d-7e00b19365c1", "timestamp": "2024-04-25T00:00:00", "text": "I think User_4 lives in London."}
+{"source_id": "4d1e292b-489c-44a4-af5d-fda32b915b7b", "timestamp": "2023-01-01T00:00:00", "text": "User_5 lives in NY."}
+{"source_id": "0d9e37d2-10fb-4299-aea3-c1d808954546", "timestamp": "2023-05-28T00:00:00", "text": "User_5 lives in NY."}
+{"source_id": "406651ab-65e7-4276-8d74-1f5fe923234c", "timestamp": "2023-01-01T00:00:00", "text": "I think User_6 lives in TX."}
+{"source_id": "cb2d4f7c-a220-425f-97b0-465a72a46ce6", "timestamp": "2023-01-01T00:00:00", "text": "It is a known fact that User_6 likes pasta."}
+{"source_id": "c974fdbe-88f9-4a82-ab3e-a3e54a3f1b68", "timestamp": "2023-11-15T00:00:00", "text": "It is a known fact that User_6 likes pasta."}
+{"source_id": "82ee2439-9bd7-4557-9cd7-c7122cea3ee1", "timestamp": "2023-09-30T00:00:00", "text": "It is a known fact that User_6 likes tacos."}
+{"source_id": "65aa8d27-819b-4a46-8fa7-6b34ee37b58e", "timestamp": "2024-02-04T00:00:00", "text": "User_6 likes tacos."}
+{"source_id": "3a97401c-3f9c-4a2b-99aa-fbc70744807a", "timestamp": "2023-01-01T00:00:00", "text": "I think User_7 uses Linux."}
+{"source_id": "771553d4-8572-4da2-a5c5-a5f5400e6881", "timestamp": "2023-08-17T00:00:00", "text": "It is a known fact that User_7 uses Windows."}
+{"source_id": "2c5c1df6-2fb3-4204-b60e-d3c668f44719", "timestamp": "2023-03-27T00:00:00", "text": "I think User_7 uses Android."}
+{"source_id": "073cf006-f8b6-4d12-bbf1-9f1fc0cf63a3", "timestamp": "2023-12-11T00:00:00", "text": "User_7 uses Mac."}

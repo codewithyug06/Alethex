@@ -1,0 +1,53 @@
+{
+  "manifest_version": 3,
+  "name": "ALETHEX — Universal AI Memory & Truth Guard",
+  "version": "1.2.0",
+  "description": "Universal factual consistency & temporal memory reconciliation guard for ChatGPT, Claude, Gemini, Copilot, DeepSeek, Perplexity, and Grok.",
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "ALETHEX Truth Guard",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "nli_worker.js",
+        "vendor/transformers.min.js",
+        "icon16.png",
+        "icon48.png",
+        "icon128.png",
+        "icon.png",
+        "icon.svg"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

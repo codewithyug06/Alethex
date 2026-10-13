@@ -1,0 +1,66 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ALETHEX Temporal Belief & Memory Reconciliation API",
+    "description": "Audits and reconciles temporal contradictions in user memories and conversation logs, filtering out superseded facts.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.yourdomain.com",
+      "description": "ALETHEX Production Gateway"
+    }
+  ],
+  "paths": {
+    "/reconcile_memory": {
+      "post": {
+        "operationId": "reconcileMemory",
+        "summary": "Reconcile user facts and detect temporal contradictions",
+        "description": "Takes a list of statements about an entity with timestamps and returns the current valid belief state, discarding stale or superseded assertions.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documents": {
+                    "type": "array",
+                    "description": "List of user memory statements with timestamps",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "text": {"type": "string", "description": "Fact or memory"},
+                        "timestamp": {"type": "string", "description": "ISO timestamp"}
+                      },
+                      "required": ["text"]
+                    }
+                  }
+                },
+                "required": ["documents"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Reconciled memory result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "corpus_ci": {"type": "number", "description": "Consistency Index (0.0 to 1.0)"},
+                    "total_claims": {"type": "integer"},
+                    "contradictions": {"type": "array", "items": {"type": "object"}},
+                    "active_beliefs": {"type": "array", "items": {"type": "string"}}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

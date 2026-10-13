@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+*.egg-info/
+build/
+dist/*.whl
+dist/*.tar.gz
+.eggs/
+
+# Dev tools
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Environments
+.env
+.venv/
+venv/
+env/
+
+# Secrets — never commit
+token.txt
+*.token
+hf_*
+
+# Large model files (use HuggingFace Hub instead)
+models/
+alethex-nli-*/
+dataset/preprocessed/
+*.safetensors
+*.onnx
+*.tar.gz
+
+# Pipeline run outputs (regenerable)
+output/
+output_*/
+test_output*/
+logs/
+scratch/
+
+# OS
+.DS_Store
+Thumbs.db
+nvidia-h100-screenshots/

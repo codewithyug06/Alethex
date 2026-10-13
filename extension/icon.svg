@@ -1,0 +1,154 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Space Gradient -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0f1e" />
+      <stop offset="50%" stop-color="#050811" />
+      <stop offset="100%" stop-color="#020306" />
+    </linearGradient>
+
+    <!-- Outer Squircle Rim Glow -->
+    <linearGradient id="rim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f2fe" />
+      <stop offset="35%" stop-color="#38bdf8" />
+      <stop offset="75%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#a855f7" />
+    </linearGradient>
+
+    <!-- Shield Face Gradients (Beveled Depth) -->
+    <linearGradient id="shield_l" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0e1728" />
+      <stop offset="60%" stop-color="#080e1a" />
+      <stop offset="100%" stop-color="#03060c" />
+    </linearGradient>
+
+    <linearGradient id="shield_r" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#142138" />
+      <stop offset="60%" stop-color="#0a1222" />
+      <stop offset="100%" stop-color="#050912" />
+    </linearGradient>
+
+    <linearGradient id="shield_border" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f2fe" />
+      <stop offset="45%" stop-color="#38bdf8" />
+      <stop offset="85%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#4f46e5" />
+    </linearGradient>
+
+    <!-- Top Temporal Prism (Past Context / Ingestion Stream) -->
+    <linearGradient id="prism_top" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#00f2fe" />
+      <stop offset="50%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#ffffff" />
+    </linearGradient>
+
+    <!-- Bottom Temporal Prism (Frontier Generation / Reconciliation) -->
+    <linearGradient id="prism_bot" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#1d4ed8" />
+      <stop offset="50%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#ffffff" />
+    </linearGradient>
+
+    <!-- Core Bloom -->
+    <radialGradient id="core_bloom" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.45" />
+      <stop offset="50%" stop-color="#1d4ed8" stop-opacity="0.14" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </radialGradient>
+
+    <filter id="drop_shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.8" />
+    </filter>
+    <filter id="core_glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="b" />
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- 1. Squircle Base Container -->
+  <rect x="20" y="20" width="472" height="472" rx="116" ry="116" fill="url(#bg)" />
+  <rect x="20" y="20" width="472" height="472" rx="116" ry="116" fill="none" stroke="url(#rim)" stroke-width="7" stroke-opacity="0.9" />
+  <rect x="26" y="26" width="460" height="460" rx="110" ry="110" fill="none" stroke="#ffffff" stroke-width="1.2" stroke-opacity="0.08" />
+
+  <!-- 2. Ambient Internal Bloom -->
+  <circle cx="256" cy="256" r="175" fill="url(#core_bloom)" />
+
+  <!-- 3. Temporal Dial Calibration Rings -->
+  <circle cx="256" cy="256" r="162" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-opacity="0.15" stroke-dasharray="6 8" />
+  <circle cx="256" cy="256" r="118" fill="none" stroke="#6366f1" stroke-width="1.2" stroke-opacity="0.2" />
+
+  <!-- 4. Aerodynamic Security Shield of Truth (Aegis) -->
+  <path d="M 256 82 L 126 132 C 126 276, 186 376, 256 428 Z" 
+        fill="url(#shield_l)" 
+        filter="url(#drop_shadow)" />
+
+  <path d="M 256 82 L 386 132 C 386 276, 326 376, 256 428 Z" 
+        fill="url(#shield_r)" 
+        filter="url(#drop_shadow)" />
+
+  <!-- Shield Outer Border -->
+  <path d="M 256 82 L 386 132 C 386 276, 326 376, 256 428 C 186 376, 126 276, 126 132 Z" 
+        fill="none" 
+        stroke="url(#shield_border)" 
+        stroke-width="5.5" 
+        stroke-linejoin="round" />
+
+  <!-- Shield Inset Bevel Line -->
+  <path d="M 256 102 L 368 144 C 368 266, 316 354, 256 402 C 196 354, 144 266, 144 144 Z" 
+        fill="none" 
+        stroke="#38bdf8" 
+        stroke-width="1.6" 
+        stroke-opacity="0.25" 
+        stroke-linejoin="round" />
+
+  <!-- 5. Central Chrono-Prism (The Hourglass of Time & Truth) -->
+  <!-- Top Temporal Chevron (Downward Flow) -->
+  <path d="M 180 156 L 332 156 L 278 230 L 234 230 Z" 
+        fill="url(#prism_top)" 
+        filter="url(#drop_shadow)" />
+
+  <!-- Bottom Temporal Chevron (Upward Anchor) -->
+  <path d="M 234 282 L 278 282 L 332 356 L 180 356 Z" 
+        fill="url(#prism_bot)" 
+        filter="url(#drop_shadow)" />
+
+  <!-- Lateral Energy Rails Connecting the Chevrons -->
+  <path d="M 180 156 L 234 230 L 234 282 L 180 356" 
+        fill="none" 
+        stroke="#38bdf8" 
+        stroke-width="3" 
+        stroke-linecap="round" 
+        stroke-linejoin="round" 
+        opacity="0.8" />
+
+  <path d="M 332 156 L 278 230 L 278 282 L 332 356" 
+        fill="none" 
+        stroke="#38bdf8" 
+        stroke-width="3" 
+        stroke-linecap="round" 
+        stroke-linejoin="round" 
+        opacity="0.8" />
+
+  <!-- 6. Central Truth Core / Diamond Singularity -->
+  <g transform="translate(256, 256)" filter="url(#core_glow)">
+    <circle cx="0" cy="0" r="32" fill="#38bdf8" opacity="0.35" />
+    <!-- Brilliant Diamond -->
+    <polygon points="0,-28 22,0 0,28 -22,0" fill="#ffffff" />
+    <polygon points="0,-15 12,0 0,15 -12,0" fill="#38bdf8" />
+    <circle cx="0" cy="0" r="5" fill="#ffffff" />
+    <!-- Crosshair Calibration Flares -->
+    <line x1="-46" y1="0" x2="46" y2="0" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" />
+    <line x1="0" y1="-44" x2="0" y2="44" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" />
+  </g>
+
+  <!-- 7. Sensor Frame Alignment Calipers -->
+  <path d="M 80 236 L 66 248 L 66 264 L 80 276" fill="none" stroke="#38bdf8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.75" />
+  <circle cx="66" cy="256" r="3" fill="#38bdf8" />
+
+  <path d="M 432 236 L 446 248 L 446 264 L 432 276" fill="none" stroke="#38bdf8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.75" />
+  <circle cx="446" cy="256" r="3" fill="#38bdf8" />
+
+  <!-- 8. Crown Verification Status LED -->
+  <circle cx="256" cy="48" r="5" fill="#00f2fe" />
+  <circle cx="256" cy="48" r="10" fill="none" stroke="#00f2fe" stroke-width="1.8" opacity="0.45" />
+</svg>

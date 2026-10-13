@@ -1,0 +1,72 @@
+((.venv) ) nvidia@brev-14f76jssf:~/Alethex/alethex$ cd ~/Alethex/alethex
+source .venv/bin/activate
+
+python - <<'PY'
+from pathlib import Path
+import torch
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
+model_dir = Path("models/alethex-nli-h100")
+
+required = [
+    "config.json",
+    "model.safetensors",
+    "tokenizer.json",
+    "tokenizer_config.json",
+]
+missing = [name for name in required if not (model_dir / name).is_file()]
+
+if missing:
+    raise FileNotFoundError(f"Missing model files: {missing}")
+
+print("Model files verified.")
+
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+tokenizer = AutoTokenizer.from_pretrained(str(model_dir))
+model = AutoModelForSequenceClassification.from_pretrained(str(model_dir))
+model.to(device)
+model.eval()
+
+# Label mapping used by Alethex preprocessing.
+labels = {
+    0: "contradiction",
+    1: "entailment",
+    2: "neutral",
+}
+
+examples = [
+    (
+        "A woman is reading a book in a park.",
+        "Someone is reading in a park.",
+    ),
+    (
+        "A woman is reading a book in a park.",
+        "The woman is not reading anything.",
+    ),
+    (
+        "A woman is reading in a park.",
+        "She is wearing a blue coat.",
+    ),
+PYint("\nSaved model inference test completed.")[i]), 4)
+Model files verified.
+Loading weights: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 394/394 [00:00<00:00, 10084.55it/s]
+Device: cuda:0
+
+========== MODEL PREDICTIONS ==========
+
+Premise: A woman is reading a book in a park.
+Hypothesis: Someone is reading in a park.
+Prediction: entailment
+Probabilities: {'contradiction': 0.0, 'entailment': 0.9726, 'neutral': 0.0273}
+
+Premise: A woman is reading a book in a park.
+Hypothesis: The woman is not reading anything.
+Prediction: contradiction
+Probabilities: {'contradiction': 0.9999, 'entailment': 0.0, 'neutral': 0.0}
+
+Premise: A woman is reading in a park.
+Hypothesis: She is wearing a blue coat.
+Prediction: neutral
+Probabilities: {'contradiction': 0.0001, 'entailment': 0.0, 'neutral': 0.9999}
+
+Saved model inference test completed.

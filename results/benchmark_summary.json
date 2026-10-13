@@ -1,0 +1,52 @@
+{
+  "timestamp": 1790575951.0478883,
+  "models": [
+    {
+      "model_name": "ALETHEX-NLI-INT8 (Quantized ONNX)",
+      "num_pairs": 30,
+      "accuracy": 0.2333,
+      "macro_precision": 0.1742,
+      "macro_recall": 0.2333,
+      "macro_f1": 0.1978,
+      "weighted_f1": 0.1978,
+      "per_class_f1": {
+        "contradiction": 0.3077,
+        "entailment": 0.2857,
+        "neutral": 0.0
+      },
+      "total_elapsed_sec": 0.215,
+      "latency_per_pair_ms": 7.18,
+      "throughput_pairs_sec": 139.3,
+      "disk_size_mb": 164.3
+    },
+    {
+      "model_name": "ALETHEX-Mini (Distilled 22.7M)",
+      "num_pairs": 30,
+      "accuracy": 0.3333,
+      "macro_precision": 0.4444,
+      "macro_recall": 0.3333,
+      "macro_f1": 0.2228,
+      "weighted_f1": 0.2228,
+      "per_class_f1": {
+        "contradiction": 0.0,
+        "entailment": 0.4865,
+        "neutral": 0.1818
+      },
+      "total_elapsed_sec": 0.08,
+      "latency_per_pair_ms": 2.66,
+      "throughput_pairs_sec": 375.7,
+      "disk_size_mb": 86.7
+    }
+  ],
+  "e2e_pipeline": {
+    "benchmark": "End-to-End Pipeline Ingestion & Belief Graph Construction",
+    "num_documents": 46,
+    "num_extracted_claims": 36,
+    "num_entities": 25,
+    "num_belief_edges": 36,
+    "consistency_index": 1.0,
+    "elapsed_sec": 13.383,
+    "docs_per_second": 3.4,
+    "claims_per_second": 2.7
+  }
+}

@@ -1,0 +1,46 @@
+{"claim_a_id": "577934a0-6a51-4039-9b21-67d0961372ca", "claim_b_id": "53c10bda-f3fe-476e-9379-0fb7c78a4985", "entity": "User_0", "predicate": "uses", "true_relation": "conflicting"}
+{"claim_a_id": "577934a0-6a51-4039-9b21-67d0961372ca", "claim_b_id": "4eb3e7a5-259b-4c47-8af8-35c17747648b", "entity": "User_0", "predicate": "uses", "true_relation": "superseded"}
+{"claim_a_id": "577934a0-6a51-4039-9b21-67d0961372ca", "claim_b_id": "0a80aca3-218b-453a-b6fd-b45d2c6f21b3", "entity": "User_0", "predicate": "uses", "true_relation": "superseded"}
+{"claim_a_id": "53c10bda-f3fe-476e-9379-0fb7c78a4985", "claim_b_id": "4eb3e7a5-259b-4c47-8af8-35c17747648b", "entity": "User_0", "predicate": "uses", "true_relation": "superseded"}
+{"claim_a_id": "53c10bda-f3fe-476e-9379-0fb7c78a4985", "claim_b_id": "0a80aca3-218b-453a-b6fd-b45d2c6f21b3", "entity": "User_0", "predicate": "uses", "true_relation": "superseded"}
+{"claim_a_id": "4eb3e7a5-259b-4c47-8af8-35c17747648b", "claim_b_id": "0a80aca3-218b-453a-b6fd-b45d2c6f21b3", "entity": "User_0", "predicate": "uses", "true_relation": "superseded"}
+{"claim_a_id": "b741583c-824a-4362-acb6-d76271f1f715", "claim_b_id": "b38a7196-9c50-4527-8c59-f08be79e4422", "entity": "User_0", "predicate": "works at", "true_relation": "superseded"}
+{"claim_a_id": "93ab7e95-e561-4e3d-8b7c-a6b7978cfbc0", "claim_b_id": "1aa00912-d52c-4a3d-887a-16c0f270b4ad", "entity": "User_1", "predicate": "likes", "true_relation": "superseded"}
+{"claim_a_id": "93ab7e95-e561-4e3d-8b7c-a6b7978cfbc0", "claim_b_id": "c75a35ae-b889-4f2a-aa5d-a3352fc60340", "entity": "User_1", "predicate": "likes", "true_relation": "superseded"}
+{"claim_a_id": "1aa00912-d52c-4a3d-887a-16c0f270b4ad", "claim_b_id": "c75a35ae-b889-4f2a-aa5d-a3352fc60340", "entity": "User_1", "predicate": "likes", "true_relation": "superseded"}
+{"claim_a_id": "34abe9e3-1f83-4d98-87d5-d2e5c186c580", "claim_b_id": "b35a2a69-8e20-43f7-98b9-fc38644ef8cf", "entity": "User_1", "predicate": "lives in", "true_relation": "superseded"}
+{"claim_a_id": "34abe9e3-1f83-4d98-87d5-d2e5c186c580", "claim_b_id": "98a4f327-a002-4480-b371-dacb517edc3c", "entity": "User_1", "predicate": "lives in", "true_relation": "consistent"}
+{"claim_a_id": "b35a2a69-8e20-43f7-98b9-fc38644ef8cf", "claim_b_id": "98a4f327-a002-4480-b371-dacb517edc3c", "entity": "User_1", "predicate": "lives in", "true_relation": "superseded"}
+{"claim_a_id": "f1871b3c-76a3-47de-81a5-64ecaa772e00", "claim_b_id": "b009e782-4098-4d34-a626-4d1df2bd49ba", "entity": "User_2", "predicate": "lives in", "true_relation": "superseded"}
+{"claim_a_id": "f1871b3c-76a3-47de-81a5-64ecaa772e00", "claim_b_id": "1afd7675-f307-4649-af1e-9d0237650017", "entity": "User_2", "predicate": "lives in", "true_relation": "consistent"}
+{"claim_a_id": "b009e782-4098-4d34-a626-4d1df2bd49ba", "claim_b_id": "1afd7675-f307-4649-af1e-9d0237650017", "entity": "User_2", "predicate": "lives in", "true_relation": "superseded"}
+{"claim_a_id": "b341e124-0fa3-4668-98b6-f23cf574237a", "claim_b_id": "4dcf8f79-9092-40b2-a104-6fe829cdb8ff", "entity": "User_2", "predicate": "likes", "true_relation": "superseded"}
+{"claim_a_id": "6a901c46-20ec-4bce-aa79-672470c362da", "claim_b_id": "5f447416-f1b5-4cd2-9156-3a4fe4d2a24f", "entity": "User_3", "predicate": "uses", "true_relation": "superseded"}
+{"claim_a_id": "ee5b3885-2dcf-47cc-bd3f-01837c79e80e", "claim_b_id": "d9a5ccea-5a07-4cad-b29a-6b9c2620804e", "entity": "User_3", "predicate": "likes", "true_relation": "superseded"}
+{"claim_a_id": "ee5b3885-2dcf-47cc-bd3f-01837c79e80e", "claim_b_id": "af9d8581-9612-4b34-8612-56e47f338f61", "entity": "User_3", "predicate": "likes", "true_relation": "superseded"}
+{"claim_a_id": "d9a5ccea-5a07-4cad-b29a-6b9c2620804e", "claim_b_id": "af9d8581-9612-4b34-8612-56e47f338f61", "entity": "User_3", "predicate": "likes", "true_relation": "superseded"}
+{"claim_a_id": "7df22844-0761-432b-8465-7b99c902e051", "claim_b_id": "34f73b35-0288-4eb3-a2bd-8572cae92710", "entity": "User_4", "predicate": "likes", "true_relation": "superseded"}
+{"claim_a_id": "7df22844-0761-432b-8465-7b99c902e051", "claim_b_id": "fe6f82f3-b672-44b2-afa9-e1f4d6738b8a", "entity": "User_4", "predicate": "likes", "true_relation": "superseded"}
+{"claim_a_id": "34f73b35-0288-4eb3-a2bd-8572cae92710", "claim_b_id": "fe6f82f3-b672-44b2-afa9-e1f4d6738b8a", "entity": "User_4", "predicate": "likes", "true_relation": "superseded"}
+{"claim_a_id": "5975d7b6-94a7-47d8-957b-e505cc914056", "claim_b_id": "4c592614-25ac-419b-9afd-045e0ce8aa57", "entity": "User_4", "predicate": "uses", "true_relation": "conflicting"}
+{"claim_a_id": "5975d7b6-94a7-47d8-957b-e505cc914056", "claim_b_id": "15f1f922-1e68-4066-aaf7-a22ef619e72f", "entity": "User_4", "predicate": "uses", "true_relation": "superseded"}
+{"claim_a_id": "5975d7b6-94a7-47d8-957b-e505cc914056", "claim_b_id": "5de1ab0b-ee39-4d7a-a2ad-f8a074a56323", "entity": "User_4", "predicate": "uses", "true_relation": "superseded"}
+{"claim_a_id": "4c592614-25ac-419b-9afd-045e0ce8aa57", "claim_b_id": "15f1f922-1e68-4066-aaf7-a22ef619e72f", "entity": "User_4", "predicate": "uses", "true_relation": "superseded"}
+{"claim_a_id": "4c592614-25ac-419b-9afd-045e0ce8aa57", "claim_b_id": "5de1ab0b-ee39-4d7a-a2ad-f8a074a56323", "entity": "User_4", "predicate": "uses", "true_relation": "superseded"}
+{"claim_a_id": "15f1f922-1e68-4066-aaf7-a22ef619e72f", "claim_b_id": "5de1ab0b-ee39-4d7a-a2ad-f8a074a56323", "entity": "User_4", "predicate": "uses", "true_relation": "conflicting"}
+{"claim_a_id": "20fe4e6c-1bef-4a59-8cfb-f99bc3822ab6", "claim_b_id": "a093e087-dbbc-4b7d-9f01-222d3742c1ff", "entity": "User_4", "predicate": "lives in", "true_relation": "superseded"}
+{"claim_a_id": "20fe4e6c-1bef-4a59-8cfb-f99bc3822ab6", "claim_b_id": "a0f7cb41-d90d-4b1d-b39b-5f3bc4e1a011", "entity": "User_4", "predicate": "lives in", "true_relation": "superseded"}
+{"claim_a_id": "a093e087-dbbc-4b7d-9f01-222d3742c1ff", "claim_b_id": "a0f7cb41-d90d-4b1d-b39b-5f3bc4e1a011", "entity": "User_4", "predicate": "lives in", "true_relation": "superseded"}
+{"claim_a_id": "0bf14b3f-309e-4714-bdae-7fef1ee175d1", "claim_b_id": "5f16d57f-7d2a-4da1-b55b-0e36fac2773a", "entity": "User_5", "predicate": "lives in", "true_relation": "consistent"}
+{"claim_a_id": "461a7afd-8625-4b6b-9e23-6fabf1d89afa", "claim_b_id": "a5455931-757a-4afe-990a-29c1cfea8410", "entity": "User_6", "predicate": "likes", "true_relation": "consistent"}
+{"claim_a_id": "461a7afd-8625-4b6b-9e23-6fabf1d89afa", "claim_b_id": "d061e990-4509-4fe8-ac2a-317f457dfb39", "entity": "User_6", "predicate": "likes", "true_relation": "superseded"}
+{"claim_a_id": "461a7afd-8625-4b6b-9e23-6fabf1d89afa", "claim_b_id": "4280175f-6a4b-46d3-8730-1fc636a4b9e6", "entity": "User_6", "predicate": "likes", "true_relation": "superseded"}
+{"claim_a_id": "a5455931-757a-4afe-990a-29c1cfea8410", "claim_b_id": "d061e990-4509-4fe8-ac2a-317f457dfb39", "entity": "User_6", "predicate": "likes", "true_relation": "conflicting"}
+{"claim_a_id": "a5455931-757a-4afe-990a-29c1cfea8410", "claim_b_id": "4280175f-6a4b-46d3-8730-1fc636a4b9e6", "entity": "User_6", "predicate": "likes", "true_relation": "superseded"}
+{"claim_a_id": "d061e990-4509-4fe8-ac2a-317f457dfb39", "claim_b_id": "4280175f-6a4b-46d3-8730-1fc636a4b9e6", "entity": "User_6", "predicate": "likes", "true_relation": "consistent"}
+{"claim_a_id": "f6a12729-c439-488d-9e0e-295f76e3f3bc", "claim_b_id": "2342f700-2769-472d-9349-ed711c9718f0", "entity": "User_7", "predicate": "uses", "true_relation": "superseded"}
+{"claim_a_id": "f6a12729-c439-488d-9e0e-295f76e3f3bc", "claim_b_id": "d1c4ec2f-5c33-497e-9420-f6256ab78890", "entity": "User_7", "predicate": "uses", "true_relation": "superseded"}
+{"claim_a_id": "f6a12729-c439-488d-9e0e-295f76e3f3bc", "claim_b_id": "ca6e1e6e-1eac-4802-a224-2ad03d346565", "entity": "User_7", "predicate": "uses", "true_relation": "superseded"}
+{"claim_a_id": "2342f700-2769-472d-9349-ed711c9718f0", "claim_b_id": "d1c4ec2f-5c33-497e-9420-f6256ab78890", "entity": "User_7", "predicate": "uses", "true_relation": "conflicting"}
+{"claim_a_id": "2342f700-2769-472d-9349-ed711c9718f0", "claim_b_id": "ca6e1e6e-1eac-4802-a224-2ad03d346565", "entity": "User_7", "predicate": "uses", "true_relation": "superseded"}
+{"claim_a_id": "d1c4ec2f-5c33-497e-9420-f6256ab78890", "claim_b_id": "ca6e1e6e-1eac-4802-a224-2ad03d346565", "entity": "User_7", "predicate": "uses", "true_relation": "superseded"}

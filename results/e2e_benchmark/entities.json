@@ -1,0 +1,177 @@
+{
+  "1631b38a-4c5c-4ab3-a4df-ad46ecdd6075": {
+    "entity_id": "1631b38a-4c5c-4ab3-a4df-ad46ecdd6075",
+    "canonical_name": "mac",
+    "aliases": [
+      "mac"
+    ]
+  },
+  "62819abd-ea08-4d87-9304-9e7c19262907": {
+    "entity_id": "62819abd-ea08-4d87-9304-9e7c19262907",
+    "canonical_name": "user_7",
+    "aliases": [
+      "user_7"
+    ]
+  },
+  "370eae7e-bbf9-4db4-85b4-2e72a946a255": {
+    "entity_id": "370eae7e-bbf9-4db4-85b4-2e72a946a255",
+    "canonical_name": "pizza",
+    "aliases": [
+      "pizza"
+    ]
+  },
+  "524fd748-fbeb-41f1-b3d1-1ab27429f449": {
+    "entity_id": "524fd748-fbeb-41f1-b3d1-1ab27429f449",
+    "canonical_name": "user_3",
+    "aliases": [
+      "user_3"
+    ]
+  },
+  "ddd6d8a5-7f65-44d7-9ede-4039d5b15994": {
+    "entity_id": "ddd6d8a5-7f65-44d7-9ede-4039d5b15994",
+    "canonical_name": "user_2",
+    "aliases": [
+      "user_2"
+    ]
+  },
+  "f8c8cc76-23a5-47c0-abd0-3b51d782f942": {
+    "entity_id": "f8c8cc76-23a5-47c0-abd0-3b51d782f942",
+    "canonical_name": "user_4",
+    "aliases": [
+      "user_4"
+    ]
+  },
+  "7459ec48-79a6-403d-98b2-341b28b53d3a": {
+    "entity_id": "7459ec48-79a6-403d-98b2-341b28b53d3a",
+    "canonical_name": "taco",
+    "aliases": [
+      "taco"
+    ]
+  },
+  "5591c0f0-ce6b-41d3-8fb7-a02915610e65": {
+    "entity_id": "5591c0f0-ce6b-41d3-8fb7-a02915610e65",
+    "canonical_name": "pasta",
+    "aliases": [
+      "pasta"
+    ]
+  },
+  "708b7a70-1839-4228-bc33-20b82cd8aff6": {
+    "entity_id": "708b7a70-1839-4228-bc33-20b82cd8aff6",
+    "canonical_name": "linux",
+    "aliases": [
+      "linux"
+    ]
+  },
+  "0b0461ca-2259-478d-a697-44c27fb0234f": {
+    "entity_id": "0b0461ca-2259-478d-a697-44c27fb0234f",
+    "canonical_name": "sushi",
+    "aliases": [
+      "sushi"
+    ]
+  },
+  "bd1e4cee-8902-4fb6-872d-6d8c6f9c4a2e": {
+    "entity_id": "bd1e4cee-8902-4fb6-872d-6d8c6f9c4a2e",
+    "canonical_name": "tx",
+    "aliases": [
+      "tx"
+    ]
+  },
+  "1f2aece6-dcb4-4c56-92d3-952fb99f36eb": {
+    "entity_id": "1f2aece6-dcb4-4c56-92d3-952fb99f36eb",
+    "canonical_name": "apple",
+    "aliases": [
+      "apple"
+    ]
+  },
+  "85b957d4-9e1c-47ee-965a-db0c0a624be4": {
+    "entity_id": "85b957d4-9e1c-47ee-965a-db0c0a624be4",
+    "canonical_name": "user_6",
+    "aliases": [
+      "user_6"
+    ]
+  },
+  "65c5740f-4826-457a-b5a5-9dbfe86e2f36": {
+    "entity_id": "65c5740f-4826-457a-b5a5-9dbfe86e2f36",
+    "canonical_name": "tokyo",
+    "aliases": [
+      "tokyo"
+    ]
+  },
+  "659baf9d-8bbe-4d77-8c77-0e27dbae2c4b": {
+    "entity_id": "659baf9d-8bbe-4d77-8c77-0e27dbae2c4b",
+    "canonical_name": "windows",
+    "aliases": [
+      "windows"
+    ]
+  },
+  "cf71dfc7-1bf5-4720-be85-729833fea7c0": {
+    "entity_id": "cf71dfc7-1bf5-4720-be85-729833fea7c0",
+    "canonical_name": "android",
+    "aliases": [
+      "android"
+    ]
+  },
+  "780f2064-097c-4caf-a6b4-22e00c5b13c1": {
+    "entity_id": "780f2064-097c-4caf-a6b4-22e00c5b13c1",
+    "canonical_name": "google",
+    "aliases": [
+      "google"
+    ]
+  },
+  "4add26bb-846f-4c39-a58a-ce94f5fe8397": {
+    "entity_id": "4add26bb-846f-4c39-a58a-ce94f5fe8397",
+    "canonical_name": "microsoft",
+    "aliases": [
+      "microsoft"
+    ]
+  },
+  "7debfef1-b7d6-484e-9eb3-cddbba4a69e2": {
+    "entity_id": "7debfef1-b7d6-484e-9eb3-cddbba4a69e2",
+    "canonical_name": "ca",
+    "aliases": [
+      "ca"
+    ]
+  },
+  "b99a942e-37ba-4c06-8358-114e2ad49080": {
+    "entity_id": "b99a942e-37ba-4c06-8358-114e2ad49080",
+    "canonical_name": "user_5",
+    "aliases": [
+      "user_5"
+    ]
+  },
+  "f38c38dc-1e68-46a5-886c-4a65e3aa8f53": {
+    "entity_id": "f38c38dc-1e68-46a5-886c-4a65e3aa8f53",
+    "canonical_name": "user_1",
+    "aliases": [
+      "user_1"
+    ]
+  },
+  "619565d6-78ad-4b18-b228-ec332f8baa38": {
+    "entity_id": "619565d6-78ad-4b18-b228-ec332f8baa38",
+    "canonical_name": "user_0",
+    "aliases": [
+      "user_0"
+    ]
+  },
+  "526ac240-223c-40a5-94c5-92fa4970f060": {
+    "entity_id": "526ac240-223c-40a5-94c5-92fa4970f060",
+    "canonical_name": "it",
+    "aliases": [
+      "it"
+    ]
+  },
+  "1f83fe0a-5a88-486d-a132-cc9839b77a77": {
+    "entity_id": "1f83fe0a-5a88-486d-a132-cc9839b77a77",
+    "canonical_name": "ny",
+    "aliases": [
+      "ny"
+    ]
+  },
+  "d31e8415-d58b-4b26-a63d-9d8b72dc8a49": {
+    "entity_id": "d31e8415-d58b-4b26-a63d-9d8b72dc8a49",
+    "canonical_name": "fact",
+    "aliases": [
+      "fact"
+    ]
+  }
+}

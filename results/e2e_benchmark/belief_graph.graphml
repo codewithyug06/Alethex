@@ -1,0 +1,426 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd"><key id="d7" for="edge" attr.name="source_id" attr.type="string"/>
+<key id="d6" for="edge" attr.name="confidence" attr.type="double"/>
+<key id="d5" for="edge" attr.name="validity_end" attr.type="string"/>
+<key id="d4" for="edge" attr.name="validity_start" attr.type="string"/>
+<key id="d3" for="edge" attr.name="predicate" attr.type="string"/>
+<key id="d2" for="node" attr.name="label" attr.type="string"/>
+<key id="d1" for="node" attr.name="canonical_name" attr.type="string"/>
+<key id="d0" for="node" attr.name="type" attr.type="string"/>
+<graph edgedefault="directed"><node id="1631b38a-4c5c-4ab3-a4df-ad46ecdd6075">
+  <data key="d0">entity</data>
+  <data key="d1">mac</data>
+</node>
+<node id="62819abd-ea08-4d87-9304-9e7c19262907">
+  <data key="d0">entity</data>
+  <data key="d1">user_7</data>
+</node>
+<node id="370eae7e-bbf9-4db4-85b4-2e72a946a255">
+  <data key="d0">entity</data>
+  <data key="d1">pizza</data>
+</node>
+<node id="524fd748-fbeb-41f1-b3d1-1ab27429f449">
+  <data key="d0">entity</data>
+  <data key="d1">user_3</data>
+</node>
+<node id="ddd6d8a5-7f65-44d7-9ede-4039d5b15994">
+  <data key="d0">entity</data>
+  <data key="d1">user_2</data>
+</node>
+<node id="f8c8cc76-23a5-47c0-abd0-3b51d782f942">
+  <data key="d0">entity</data>
+  <data key="d1">user_4</data>
+</node>
+<node id="7459ec48-79a6-403d-98b2-341b28b53d3a">
+  <data key="d0">entity</data>
+  <data key="d1">taco</data>
+</node>
+<node id="5591c0f0-ce6b-41d3-8fb7-a02915610e65">
+  <data key="d0">entity</data>
+  <data key="d1">pasta</data>
+</node>
+<node id="708b7a70-1839-4228-bc33-20b82cd8aff6">
+  <data key="d0">entity</data>
+  <data key="d1">linux</data>
+</node>
+<node id="0b0461ca-2259-478d-a697-44c27fb0234f">
+  <data key="d0">entity</data>
+  <data key="d1">sushi</data>
+</node>
+<node id="bd1e4cee-8902-4fb6-872d-6d8c6f9c4a2e">
+  <data key="d0">entity</data>
+  <data key="d1">tx</data>
+</node>
+<node id="1f2aece6-dcb4-4c56-92d3-952fb99f36eb">
+  <data key="d0">entity</data>
+  <data key="d1">apple</data>
+</node>
+<node id="85b957d4-9e1c-47ee-965a-db0c0a624be4">
+  <data key="d0">entity</data>
+  <data key="d1">user_6</data>
+</node>
+<node id="65c5740f-4826-457a-b5a5-9dbfe86e2f36">
+  <data key="d0">entity</data>
+  <data key="d1">tokyo</data>
+</node>
+<node id="659baf9d-8bbe-4d77-8c77-0e27dbae2c4b">
+  <data key="d0">entity</data>
+  <data key="d1">windows</data>
+</node>
+<node id="cf71dfc7-1bf5-4720-be85-729833fea7c0">
+  <data key="d0">entity</data>
+  <data key="d1">android</data>
+</node>
+<node id="780f2064-097c-4caf-a6b4-22e00c5b13c1">
+  <data key="d0">entity</data>
+  <data key="d1">google</data>
+</node>
+<node id="4add26bb-846f-4c39-a58a-ce94f5fe8397">
+  <data key="d0">entity</data>
+  <data key="d1">microsoft</data>
+</node>
+<node id="7debfef1-b7d6-484e-9eb3-cddbba4a69e2">
+  <data key="d0">entity</data>
+  <data key="d1">ca</data>
+</node>
+<node id="b99a942e-37ba-4c06-8358-114e2ad49080">
+  <data key="d0">entity</data>
+  <data key="d1">user_5</data>
+</node>
+<node id="f38c38dc-1e68-46a5-886c-4a65e3aa8f53">
+  <data key="d0">entity</data>
+  <data key="d1">user_1</data>
+</node>
+<node id="619565d6-78ad-4b18-b228-ec332f8baa38">
+  <data key="d0">entity</data>
+  <data key="d1">user_0</data>
+</node>
+<node id="526ac240-223c-40a5-94c5-92fa4970f060">
+  <data key="d0">entity</data>
+  <data key="d1">it</data>
+</node>
+<node id="1f83fe0a-5a88-486d-a132-cc9839b77a77">
+  <data key="d0">entity</data>
+  <data key="d1">ny</data>
+</node>
+<node id="d31e8415-d58b-4b26-a63d-9d8b72dc8a49">
+  <data key="d0">entity</data>
+  <data key="d1">fact</data>
+</node>
+<node id="val::ca">
+  <data key="d0">value</data>
+  <data key="d2">ca</data>
+</node>
+<node id="val::windows">
+  <data key="d0">value</data>
+  <data key="d2">windows</data>
+</node>
+<node id="val::android">
+  <data key="d0">value</data>
+  <data key="d2">android</data>
+</node>
+<node id="val::mac">
+  <data key="d0">value</data>
+  <data key="d2">mac</data>
+</node>
+<node id="val::apple">
+  <data key="d0">value</data>
+  <data key="d2">apple</data>
+</node>
+<node id="val::google">
+  <data key="d0">value</data>
+  <data key="d2">google</data>
+</node>
+<node id="val::fact">
+  <data key="d0">value</data>
+  <data key="d2">fact</data>
+</node>
+<node id="val::pizza">
+  <data key="d0">value</data>
+  <data key="d2">pizza</data>
+</node>
+<node id="val::pasta">
+  <data key="d0">value</data>
+  <data key="d2">pasta</data>
+</node>
+<node id="val::ny">
+  <data key="d0">value</data>
+  <data key="d2">ny</data>
+</node>
+<node id="val::tokyo">
+  <data key="d0">value</data>
+  <data key="d2">tokyo</data>
+</node>
+<node id="val::linux">
+  <data key="d0">value</data>
+  <data key="d2">linux</data>
+</node>
+<node id="val::microsoft">
+  <data key="d0">value</data>
+  <data key="d2">microsoft</data>
+</node>
+<node id="val::sushi">
+  <data key="d0">value</data>
+  <data key="d2">sushi</data>
+</node>
+<node id="val::tx">
+  <data key="d0">value</data>
+  <data key="d2">tx</data>
+</node>
+<node id="val::taco">
+  <data key="d0">value</data>
+  <data key="d2">taco</data>
+</node>
+<edge source="62819abd-ea08-4d87-9304-9e7c19262907" target="val::mac" id="2b4a41c6-25c6-4a55-a83e-2ba9141b289f">
+  <data key="d3">use</data>
+  <data key="d4">2023-03-11 00:00:00</data>
+  <data key="d5">None</data>
+  <data key="d6">0.8</data>
+  <data key="d7">073cf006-f8b6-4d12-bbf1-9f1fc0cf63a3</data>
+</edge>
+<edge source="524fd748-fbeb-41f1-b3d1-1ab27429f449" target="val::windows" id="960125fb-e97a-4f98-8cdb-40f2fed85a49">
+  <data key="d3">use</data>
+  <data key="d4">2023-01-01 00:00:00</data>
+  <data key="d5">None</data>
+  <data key="d6">0.8</data>
+  <data key="d7">d4aed8d2-45e7-4c05-8baa-3bd074807f45</data>
+</edge>
+<edge source="524fd748-fbeb-41f1-b3d1-1ab27429f449" target="val::pasta" id="698736e5-74fa-45fb-9834-a8d12ed7c8a3">
+  <data key="d3">like</data>
+  <data key="d4">2023-03-04 00:00:00</data>
+  <data key="d5">2023-08-09 00:00:00</data>
+  <data key="d6">0.8</data>
+  <data key="d7">21c9f6b4-9285-478e-97ff-ccce4b352bcb</data>
+</edge>
+<edge source="524fd748-fbeb-41f1-b3d1-1ab27429f449" target="val::pizza" id="9b757323-6b66-4d9a-ad39-e49db0e64a5a">
+  <data key="d3">like</data>
+  <data key="d4">2023-08-09 00:00:00</data>
+  <data key="d5">None</data>
+  <data key="d6">0.8</data>
+  <data key="d7">bd3e7c3c-1984-4929-be15-9741dade26c5</data>
+</edge>
+<edge source="524fd748-fbeb-41f1-b3d1-1ab27429f449" target="val::microsoft" id="0db2b080-6c33-4df7-958e-ff89d00d859a">
+  <data key="d3">work</data>
+  <data key="d4">2023-01-01 00:00:00</data>
+  <data key="d5">None</data>
+  <data key="d6">0.8</data>
+  <data key="d7">8e3c456d-3bff-467e-bac0-e6e03b7d9217</data>
+</edge>
+<edge source="ddd6d8a5-7f65-44d7-9ede-4039d5b15994" target="val::ca" id="b936b6ed-b691-4289-aa0a-68570c8e1b91">
+  <data key="d3">live</data>
+  <data key="d4">2023-01-01 00:00:00</data>
+  <data key="d5">2023-04-24 00:00:00</data>
+  <data key="d6">0.8</data>
+  <data key="d7">b9c73dcc-ce7b-4da2-9e23-1bcac3e3a5c6</data>
+</edge>
+<edge source="ddd6d8a5-7f65-44d7-9ede-4039d5b15994" target="val::tokyo" id="87163109-2e3f-4dde-8dff-a2ddc5c3111b">
+  <data key="d3">live</data>
+  <data key="d4">2023-04-24 00:00:00</data>
+  <data key="d5">None</data>
+  <data key="d6">0.8</data>
+  <data key="d7">4169f24b-b8b9-4300-9bd0-08d54dc194fc</data>
+</edge>
+<edge source="ddd6d8a5-7f65-44d7-9ede-4039d5b15994" target="val::pizza" id="e21a9fe8-1b84-4508-92c5-624c5a5c7739">
+  <data key="d3">like</data>
+  <data key="d4">2023-01-01 00:00:00</data>
+  <data key="d5">None</data>
+  <data key="d6">0.8</data>
+  <data key="d7">85a3a1f1-7200-476f-9422-0b1a3da173aa</data>
+</edge>
+<edge source="ddd6d8a5-7f65-44d7-9ede-4039d5b15994" target="val::linux" id="6c0b33c9-30d2-4845-8d6a-f3eba2412d02">
+  <data key="d3">use</data>
+  <data key="d4">2023-01-01 00:00:00</data>
+  <data key="d5">None</data>
+  <data key="d6">0.8</data>
+  <data key="d7">07169207-9c5d-4486-a636-81dff37bb455</data>
+</edge>
+<edge source="f8c8cc76-23a5-47c0-abd0-3b51d782f942" target="val::sushi" id="128465b1-238d-499c-86f8-178a5b53f1cd">
+  <data key="d3">like</data>
+  <data key="d4">2023-07-02 00:00:00</data>
+  <data key="d5">2024-02-08 00:00:00</data>
+  <data key="d6">0.8</data>
+  <data key="d7">20acd0fa-b7fd-4761-afd2-20e4126a6831</data>
+</edge>
+<edge source="f8c8cc76-23a5-47c0-abd0-3b51d782f942" target="val::pasta" id="678e1cd5-15f1-466e-b0f5-76b3f68fe238">
+  <data key="d3">like</data>
+  <data key="d4">2024-02-08 00:00:00</data>
+  <data key="d5">None</data>
+  <data key="d6">0.8</data>
+  <data key="d7">99e19571-6e4d-4a58-a9ab-7c905464c8f5</data>
+</edge>
+<edge source="f8c8cc76-23a5-47c0-abd0-3b51d782f942" target="val::linux" id="812faaff-1d3c-4d64-8283-113a1d2c2360">
+  <data key="d3">use</data>
+  <data key="d4">2023-01-01 00:00:00</data>
+  <data key="d5">2023-06-02 00:00:00</data>
+  <data key="d6">0.8</data>
+  <data key="d7">537ac9d9-f3cb-4a1b-83e1-c2eceafb36db</data>
+</edge>
+<edge source="f8c8cc76-23a5-47c0-abd0-3b51d782f942" target="val::android" id="827b12b7-60e6-4b30-a8be-46ca9b245ec7">
+  <data key="d3">use</data>
+  <data key="d4">2023-06-02 00:00:00</data>
+  <data key="d5">None</data>
+  <data key="d6">0.8</data>
+  <data key="d7">3f0f26be-d165-47d6-b6c0-68c4bf101103</data>
+</edge>
+<edge source="f8c8cc76-23a5-47c0-abd0-3b51d782f942" target="val::tx" id="c7bcf477-1ac2-4533-9660-c5142183b2b0">
+  <data key="d3">live</data>
+  <data key="d4">2023-09-04 00:00:00</data>
+  <data key="d5">None</data>
+  <data key="d6">0.8</data>
+  <data key="d7">a2a2051d-0bcf-4e4b-8698-608e1aa790f5</data>
+</edge>
+<edge source="85b957d4-9e1c-47ee-965a-db0c0a624be4" target="val::taco" id="236ddb64-a067-4a2f-857e-c9f81e4808f0">
+  <data key="d3">like</data>
+  <data key="d4">2024-02-04 00:00:00</data>
+  <data key="d5">None</data>
+  <data key="d6">0.8</data>
+  <data key="d7">65aa8d27-819b-4a46-8fa7-6b34ee37b58e</data>
+</edge>
+<edge source="b99a942e-37ba-4c06-8358-114e2ad49080" target="val::ny" id="0548db37-3150-4d8e-8eab-7c275a1aa576">
+  <data key="d3">live</data>
+  <data key="d4">2023-01-01 00:00:00</data>
+  <data key="d5">2023-05-28 00:00:00</data>
+  <data key="d6">0.8</data>
+  <data key="d7">4d1e292b-489c-44a4-af5d-fda32b915b7b</data>
+</edge>
+<edge source="b99a942e-37ba-4c06-8358-114e2ad49080" target="val::ny" id="1d05e133-11fc-4531-ac37-3e138fe1cfe3">
+  <data key="d3">live</data>
+  <data key="d4">2023-05-28 00:00:00</data>
+  <data key="d5">None</data>
+  <data key="d6">0.8</data>
+  <data key="d7">0d9e37d2-10fb-4299-aea3-c1d808954546</data>
+</edge>
+<edge source="f38c38dc-1e68-46a5-886c-4a65e3aa8f53" target="val::pizza" id="501f6c59-e0ed-4334-8ad7-1a8e9661fddc">
+  <data key="d3">like</data>
+  <data key="d4">2023-04-04 00:00:00</data>
+  <data key="d5">2023-10-01 00:00:00</data>
+  <data key="d6">0.8</data>
+  <data key="d7">646c6505-9174-4cb2-8efb-459222632ec9</data>
+</edge>
+<edge source="f38c38dc-1e68-46a5-886c-4a65e3aa8f53" target="val::pasta" id="8b258ed9-1dc5-40a0-a2cc-963c8677918f">
+  <data key="d3">like</data>
+  <data key="d4">2023-10-01 00:00:00</data>
+  <data key="d5">None</data>
+  <data key="d6">0.8</data>
+  <data key="d7">bd5cae35-1006-4ba1-9e61-16f59f76414a</data>
+</edge>
+<edge source="f38c38dc-1e68-46a5-886c-4a65e3aa8f53" target="val::ny" id="012f10dd-fa21-4efe-aeeb-ec1e4ee49285">
+  <data key="d3">live</data>
+  <data key="d4">2023-06-28 00:00:00</data>
+  <data key="d5">2024-02-07 00:00:00</data>
+  <data key="d6">0.8</data>
+  <data key="d7">0314efa9-9979-4729-9022-668ef4d610d4</data>
+</edge>
+<edge source="f38c38dc-1e68-46a5-886c-4a65e3aa8f53" target="val::ca" id="852b78ef-3d8f-469b-8fc2-16c59fb04906">
+  <data key="d3">live</data>
+  <data key="d4">2024-02-07 00:00:00</data>
+  <data key="d5">None</data>
+  <data key="d6">0.8</data>
+  <data key="d7">ae9b6b24-8bf1-4bf9-bd1d-2382a76e0520</data>
+</edge>
+<edge source="619565d6-78ad-4b18-b228-ec332f8baa38" target="val::ca" id="e472ecda-490f-46b7-a7eb-aea01507c19b">
+  <data key="d3">live</data>
+  <data key="d4">2023-01-01 00:00:00</data>
+  <data key="d5">None</data>
+  <data key="d6">0.8</data>
+  <data key="d7">7d1e9696-ee82-4198-ad6e-7194a54de291</data>
+</edge>
+<edge source="619565d6-78ad-4b18-b228-ec332f8baa38" target="val::windows" id="755bd873-05bc-4cc8-9b64-2a7a0f936492">
+  <data key="d3">use</data>
+  <data key="d4">2023-01-16 00:00:00</data>
+  <data key="d5">2023-02-16 00:00:00</data>
+  <data key="d6">0.8</data>
+  <data key="d7">fae71021-1708-48f9-85eb-3298bb9b5b74</data>
+</edge>
+<edge source="619565d6-78ad-4b18-b228-ec332f8baa38" target="val::android" id="268aff7e-c1f4-4e26-97a0-1fc7232198d6">
+  <data key="d3">use</data>
+  <data key="d4">2023-02-16 00:00:00</data>
+  <data key="d5">2023-03-18 00:00:00</data>
+  <data key="d6">0.8</data>
+  <data key="d7">d5b45223-f78e-426c-b28b-13cc176ae450</data>
+</edge>
+<edge source="619565d6-78ad-4b18-b228-ec332f8baa38" target="val::mac" id="24dcca08-aa37-42fb-b5a9-0e6d2de15756">
+  <data key="d3">use</data>
+  <data key="d4">2023-03-18 00:00:00</data>
+  <data key="d5">None</data>
+  <data key="d6">0.8</data>
+  <data key="d7">1f8a8e4b-1698-4a7a-9a5b-2dbd2e1967b6</data>
+</edge>
+<edge source="619565d6-78ad-4b18-b228-ec332f8baa38" target="val::apple" id="96d19bf3-818d-4e06-a0d8-9773fb8225f7">
+  <data key="d3">work</data>
+  <data key="d4">2023-01-01 00:00:00</data>
+  <data key="d5">2023-05-21 00:00:00</data>
+  <data key="d6">0.8</data>
+  <data key="d7">ddc4e4a7-3366-477c-b6cc-18f2cab277ca</data>
+</edge>
+<edge source="619565d6-78ad-4b18-b228-ec332f8baa38" target="val::google" id="45eb892e-6041-4574-93bb-a5ee682c7535">
+  <data key="d3">work</data>
+  <data key="d4">2023-05-21 00:00:00</data>
+  <data key="d5">None</data>
+  <data key="d6">0.8</data>
+  <data key="d7">167a7589-31e8-4726-97c5-28369b4c4511</data>
+</edge>
+<edge source="526ac240-223c-40a5-94c5-92fa4970f060" target="val::fact" id="d633dced-52ae-470b-abf2-1cb0d2c47ac4">
+  <data key="d3">be</data>
+  <data key="d4">2023-01-01 00:00:00</data>
+  <data key="d5">None</data>
+  <data key="d6">0.8</data>
+  <data key="d7">1a642a3d-8431-4818-9aa9-de488237f343</data>
+</edge>
+<edge source="526ac240-223c-40a5-94c5-92fa4970f060" target="val::fact" id="229ef990-dc72-4607-b962-ba746645d42a">
+  <data key="d3">be</data>
+  <data key="d4">2023-09-13 00:00:00</data>
+  <data key="d5">2023-09-30 00:00:00</data>
+  <data key="d6">0.8</data>
+  <data key="d7">a36459a1-68b3-4f95-9427-252143894984</data>
+</edge>
+<edge source="526ac240-223c-40a5-94c5-92fa4970f060" target="val::fact" id="5f643720-a798-4f38-a94a-293c0dc75e4f">
+  <data key="d3">be</data>
+  <data key="d4">2023-05-19 00:00:00</data>
+  <data key="d5">2023-08-17 00:00:00</data>
+  <data key="d6">0.8</data>
+  <data key="d7">edbd8d37-5d26-475b-a417-9f2c1e82f86d</data>
+</edge>
+<edge source="526ac240-223c-40a5-94c5-92fa4970f060" target="val::fact" id="6db817d6-8cde-4c22-ab0f-72f6c054b3cc">
+  <data key="d3">be</data>
+  <data key="d4">2023-01-01 00:00:00</data>
+  <data key="d5">None</data>
+  <data key="d6">0.8</data>
+  <data key="d7">50c73db0-70c5-4901-8706-2ea2dfd66b28</data>
+</edge>
+<edge source="526ac240-223c-40a5-94c5-92fa4970f060" target="val::fact" id="c0827bfb-5ff4-4bd3-b01c-2934ca34a965">
+  <data key="d3">be</data>
+  <data key="d4">2023-03-23 00:00:00</data>
+  <data key="d5">2023-05-19 00:00:00</data>
+  <data key="d6">0.8</data>
+  <data key="d7">f279f5eb-516f-4999-833b-75e95fef1c00</data>
+</edge>
+<edge source="526ac240-223c-40a5-94c5-92fa4970f060" target="val::fact" id="859380f0-5188-4491-a5ff-b04334cdbbc8">
+  <data key="d3">be</data>
+  <data key="d4">2023-01-01 00:00:00</data>
+  <data key="d5">2023-03-23 00:00:00</data>
+  <data key="d6">0.8</data>
+  <data key="d7">cb2d4f7c-a220-425f-97b0-465a72a46ce6</data>
+</edge>
+<edge source="526ac240-223c-40a5-94c5-92fa4970f060" target="val::fact" id="876c97cb-0be0-43f0-9ae0-e5284d9068a1">
+  <data key="d3">be</data>
+  <data key="d4">2023-11-15 00:00:00</data>
+  <data key="d5">None</data>
+  <data key="d6">0.8</data>
+  <data key="d7">c974fdbe-88f9-4a82-ab3e-a3e54a3f1b68</data>
+</edge>
+<edge source="526ac240-223c-40a5-94c5-92fa4970f060" target="val::fact" id="f6b95f7f-0d34-44cd-9f93-c8d4ece81672">
+  <data key="d3">be</data>
+  <data key="d4">2023-09-30 00:00:00</data>
+  <data key="d5">2023-11-15 00:00:00</data>
+  <data key="d6">0.8</data>
+  <data key="d7">82ee2439-9bd7-4557-9cd7-c7122cea3ee1</data>
+</edge>
+<edge source="526ac240-223c-40a5-94c5-92fa4970f060" target="val::fact" id="23a2d4f0-7176-4b7d-ade6-310a9122af65">
+  <data key="d3">be</data>
+  <data key="d4">2023-08-17 00:00:00</data>
+  <data key="d5">2023-09-13 00:00:00</data>
+  <data key="d6">0.8</data>
+  <data key="d7">771553d4-8572-4da2-a5c5-a5f5400e6881</data>
+</edge>
+</graph></graphml>
