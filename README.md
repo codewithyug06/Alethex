@@ -25,6 +25,7 @@
 - [Official PyPI Package](#official-pypi-package)
 - [Hugging Face NLI Models](#hugging-face-nli-models)
 - [System Architecture](#system-architecture)
+- [Model Architecture & Neural Optimization](#model-architecture--neural-optimization)
 - [Enterprise GPU Training on 8x NVIDIA H100 80GB](#enterprise-gpu-training-on-8x-nvidia-h100-80gb)
 - [Empirical Benchmarks & Paper Results](#empirical-benchmarks--paper-results)
 - [Chrome Extension (Universal Truth Guard)](#chrome-extension-universal-truth-guard)
@@ -183,6 +184,100 @@ ALETHEX executes a 5-stage factual reconciliation pipeline:
   <img src="assets/alethex_dataset_pipeline_map.svg" alt="ALETHEX Dataset Pipeline Map" width="95%" />
 </p>
 <p align="center"><em>Figure 1b: End-to-end dataset curation, validation, and multi-tier distillation map.</em></p>
+
+---
+
+## Model Architecture & Neural Optimization
+
+ALETHEX deploys a dual-tier neural inference engine designed to balance state-of-the-art cross-encoder classification fidelity with ultra-low latency memory reconciliation across server, edge, and browser environments.
+
+```
+       [Input Premise & Hypothesis Claims]
+                       │
+        ┌──────────────┴──────────────┐
+        ▼                             ▼
+ [Deterministic Slot Filter]    [Allen's Interval Algebra]
+   (String Equivalence)          (Disjoint Interval Check)
+        │                             │
+        ├────── Consistent            ├────── Superseded
+        │                             │
+        └──────────────┬──────────────┘
+                       ▼ (Unresolved / Overlapping Intervals)
+     ┌─────────────────────────────────────────────────┐
+     │       Dual-Tier Neural Cross-Encoder Engine     │
+     │                                                 │
+     │   Teacher Model: DeBERTa-v3-Large (400M params) │
+     │   ├── Disentangled Attention (Content + RelPos) │
+     │   ├── Enhanced Masked LM (EMLM) pre-training    │
+     │   └── 3-way Softmax [Contradiction, Entailment, │
+     │                      Neutral]                   │
+     │                         │                       │
+     │                 Knowledge Distillation          │
+     │                 (KL Divergence, T=2.0)          │
+     │                         ▼                       │
+     │   Student Model: ALETHEX-Mini (22.7M params)    │
+     │   ├── 6 Transformer Layers (384 Hidden Dim)     │
+     │   └── 86.7 MB Disk Footprint (22x CPU Speedup)  │
+     │                         │                       │
+     │                 Dynamic INT8 Quantization       │
+     │                         ▼                       │
+     │   INT8 ONNX Engine: Dynamic Matrix Multiplication│
+     │   ├── Latency: 18.02 ms (Large) / 3.19 ms (Mini)│
+     │   └── Accuracy Preserved: 92.8%                 │
+     └─────────────────────────┬───────────────────────┘
+                               │
+                Confidence Score ∈ [0.40, 0.65]?
+                               ├──► YES ──► [LLM Adjudicator] (JSON Rationalization)
+                               └──► NO  ──► Direct Belief Graph Edge Assignment
+```
+
+### 1. Teacher Cross-Encoder: DeBERTa-v3-Large (400M)
+
+The primary reasoning backbone is built on Microsoft's **DeBERTa-v3-Large** architecture:
+
+- **Disentangled Attention Mechanism:** Unlike standard BERT/RoBERTa architectures where word embeddings and position vectors are summed into a single vector, DeBERTa-v3 models each word using two separate vectors: content vector $\boldsymbol{h}_i$ and relative position vector $\boldsymbol{p}_{i|j}$. Attention weights are computed via four disentangled cross-terms:
+  
+  $$A_{i,j} = \boldsymbol{h}_i \boldsymbol{h}_j^\top + \boldsymbol{h}_i \boldsymbol{p}_{j|i}^\top + \boldsymbol{p}_{i|j} \boldsymbol{h}_j^\top + \boldsymbol{p}_{i|j} \boldsymbol{p}_{j|i}^\top$$
+
+- **Enhanced Masked Language Modeling (EMLM):** Incorporates absolute word positions into the decoding layer right before Softmax prediction, allowing the model to capture syntactic dependencies with heightened precision.
+- **Classification Head:** Linear projection layer ($1024 \to 3$) followed by a Softmax distribution mapping claim pairs into 3 mutual states:
+  
+  $$\hat{y} = \text{Softmax}\left(\boldsymbol{W}_c \boldsymbol{h}_{\text{[CLS]}} + \boldsymbol{b}_c\right), \quad \hat{y} \in \{\text{Contradiction}, \text{Entailment}, \text{Neutral}\}$$
+
+- **Training Optimization:** Optimized using AdamW with weight decay $\lambda = 0.01$, linear learning rate decay ($2 \times 10^{-5} \to 0$), and BF16 mixed precision on 8x NVIDIA H100 80GB GPUs.
+
+### 2. Knowledge Distillation: ALETHEX-Mini (22.7M)
+
+To power high-throughput streaming agents and client-side memory filters without GPU overhead, ALETHEX distills knowledge from DeBERTa-v3-Large into a compact student model (`sentence-transformers/all-MiniLM-L6-v2` backbone):
+
+- **Student Structure:** 6 transformer layers, hidden dimension $d_k = 384$, 12 self-attention heads, and 22.7M total parameters.
+- **Composite Distillation Loss:** Balanced loss function penalizing both ground-truth error and deviation from teacher logit distributions:
+  
+  $$\mathcal{L}_{\text{total}} = \alpha \cdot T^2 \cdot \mathcal{D}_{\text{KL}}\left(\sigma\left(\frac{\boldsymbol{z}_s}{T}\right) \,\middle\|\, \sigma\left(\frac{\boldsymbol{z}_t}{T}\right)\right) + (1 - \alpha) \cdot \mathcal{L}_{\text{CE}}(y, \boldsymbol{z}_s)$$
+  
+  where temperature $T = 2.0$, teacher interpolation coefficient $\alpha = 0.5$, $\boldsymbol{z}_s$ and $\boldsymbol{z}_t$ represent student and teacher logits respectively, and $\sigma(\cdot)$ is the Softmax function.
+- **Empirical Efficiency:** Shrinks storage footprint from **1,740 MB to 86.7 MB** ($20.07\times$ compression) while achieving **313.3 pairs/sec throughput** on CPU ($22.11\times$ speedup).
+
+### 3. Dynamic INT8 ONNX Quantization
+
+Both the teacher and student models are exported to ONNX computational graphs with dynamic sequence length dimensions and quantized to 8-bit integers:
+
+- **Quantization Operator:** Symmetric linear quantization mapping 32-bit floating point activations and weights to signed 8-bit integers (`INT8`):
+  
+  $$q = \text{clamp}\left(\left\lfloor \frac{x}{S} \right\rceil, -128, 127\right)$$
+  
+  where scale factor $S = \frac{\max(|x|)}{127}$.
+- **Computational Graph Tuning:** Replaces heavy FP32 matrix multiplications (`MatMul`) with fused integer operations (`MatMulInteger`) and dynamic activation quantizers (`DynamicQuantizeLinear`).
+- **Runtime Performance:** Cuts ONNX model footprint to **641 MB** for the large model and **164 MB / 86 MB** for lightweight variants, delivering near-zero accuracy degradation (< 0.01% F1 loss).
+
+### 4. Staged Inference & LLM Adjudication Pipeline
+
+ALETHEX minimizes neural evaluation costs by gating pairs through four sequential filters:
+
+1. **Deterministic Equivalence:** If extracted object values are string-identical ($o_1 = o_2$), the relationship is marked `consistent` instantly (~0ms).
+2. **Allen Interval Algebra:** If validity intervals are disjoint ($[t_{\text{start}}^{(1)}, t_{\text{end}}^{(1)}] \cap [t_{\text{start}}^{(2)}, t_{\text{end}}^{(2)}] = \emptyset$), the earlier claim is resolved as `superseded` (~0ms).
+3. **Cross-Encoder Neural Classification:** For overlapping or unbounded assertions, the pair is evaluated by the INT8 ONNX model.
+4. **LLM Adjudication Escalation:** If NLI confidence falls within the ambiguity margin $[0.40, 0.65]$, the pair is escalated to `LLMJudge` (GPT-4o / Claude / local LLM) with structured JSON reasoning for final arbitration.
 
 ---
 
