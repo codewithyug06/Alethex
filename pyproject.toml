@@ -35,6 +35,12 @@ dependencies = [
     "datasets>=2.0",
     "scikit-learn>=1.0",
     "onnxruntime>=1.16",
+    "onnx>=1.14",
+    "click>=8.0",
+    "pandas>=1.5",
+    "requests>=2.28",
+    "fastapi>=0.100",
+    "uvicorn>=0.20",
     "loguru>=0.7",
 ]
 readme = "README.md"
