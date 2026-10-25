@@ -6,12 +6,19 @@ from alethex.ingestion.schema import Claim, RawDocument
 class OpenIEExtractor:
     def __init__(self, model: str = "en_core_web_sm"):
         try:
-            self.nlp = spacy.load(model)
-        except OSError:
-            import subprocess
-            import sys
-            subprocess.check_call([sys.executable, "-m", "spacy", "download", model])
-            self.nlp = spacy.load(model)
+            # exclude=["tokenizer"] avoids Cython PreshMap ssize_t OverflowError on Linux
+            self.nlp = spacy.load(model, exclude=["tokenizer"])
+        except Exception:
+            try:
+                self.nlp = spacy.load(model)
+            except OSError:
+                import subprocess
+                import sys
+                subprocess.check_call([sys.executable, "-m", "spacy", "download", model])
+                try:
+                    self.nlp = spacy.load(model, exclude=["tokenizer"])
+                except Exception:
+                    self.nlp = spacy.load(model)
             
     def extract(self, doc: RawDocument) -> List[Claim]:
         spacy_doc = self.nlp(doc.text)
