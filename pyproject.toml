@@ -46,9 +46,9 @@ langchain = ["langchain>=0.1"]
 llamaindex = ["llama-index>=0.10"]
 
 [project.urls]
-Homepage = "https://github.com/codewithyug/alethex"
-Repository = "https://github.com/codewithyug/alethex"
-"Bug Tracker" = "https://github.com/codewithyug/alethex/issues"
+Homepage = "https://github.com/codewithyug06/Alethex"
+Repository = "https://github.com/codewithyug06/Alethex"
+"Bug Tracker" = "https://github.com/codewithyug06/Alethex/issues"
 "Model Card" = "https://huggingface.co/codewithyug/alethex-nli-deberta-v3-large"
 
 [project.scripts]
@@ -64,3 +64,12 @@ include = ["alethex*"]
 [tool.ruff]
 line-length = 100
 target-version = "py39"
+
+[tool.ruff.lint]
+ignore = [
+    "E402",
+    "F401",
+    "F841",
+    "E701",
+    "F541",
+]
