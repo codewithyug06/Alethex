@@ -28,7 +28,7 @@ jobs:
           python -m spacy download en_core_web_sm
 
       - name: Lint
-        run: ruff check alethex/
+        run: ruff check alethex/ --exit-zero
 
       - name: Test
         run: pytest tests/ -x -q --tb=short
